@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 
 function ToDoList(){
 
-    const [tasks, setTasks] = useState(["Eat Breakfast", "Shower","Watch a film"]);
+    const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
 
     //event handler, function uses setter for newTask to access event parameter target's value
@@ -36,9 +36,23 @@ function ToDoList(){
     function moveTaskUp(index){
 
 
+        //check if at the top
+        if(index > 0){
+            const updatedTasks = [...tasks];
+            [updatedTasks[index],updatedTasks[index - 1]] = [updatedTasks[index -1],updatedTasks[index]]
+            setTasks(updatedTasks);
+        }
+
     }
 
     function moveTaskDown(index){
+
+        //check if at the bottom
+        if(index < tasks.length -1 ){
+            const updatedTasks = [...tasks];
+            [updatedTasks[index],updatedTasks[index + 1]] = [updatedTasks[index +1],updatedTasks[index]]
+            setTasks(updatedTasks);
+        }
 
     }
     return(
