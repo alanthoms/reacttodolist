@@ -9,6 +9,12 @@ function ToDoList(){
     const [newEffort, setNewEffort] = useState('');
     const [totalEffort, setTotalEffort] = useState(0);
 
+    const [isRepeatable, setIsRepeatable] = useState(false);
+    
+    function handleRepeatableChange(event) {
+        setIsRepeatable(event.target.checked);
+    }
+
 
     //event handler, function uses setter for newTask to access event parameter target's value
     // enables visual change of textbox value
@@ -37,7 +43,7 @@ function ToDoList(){
         if (newTask.trim() !== '' && newEffort.trim() !== '') {
             const effortValue = parseInt(newEffort, 10);
             if (!isNaN(effortValue) && effortValue >= 0) {
-                setTasks(t => [...t, { text: newTask, effort: effortValue }]);
+                setTasks(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false }]);
                 setNewTask('');
                 setNewEffort('');
             } else {
@@ -49,12 +55,28 @@ function ToDoList(){
 
     function deleteTask(index){
         //add effort from deleted task
-        setTotalEffort(prev => prev + tasks[index].effort);
+        const task = tasks[index];
+        setTotalEffort(prev => prev + task.effort);
 
-        //filter with arrow function, if index matches i, filtered out
-        // we keep i that doesnt equal index
-        const updatedTasks = tasks.filter((_,i) => i !== index);
-        setTasks(updatedTasks);
+        if (task.repeatable) {
+            // Flash it briefly
+            const updatedTasks = [...tasks];
+            updatedTasks[index].flashed = true;
+            setTasks(updatedTasks);
+
+            // Remove flash after a delay (e.g. 500ms)
+            setTimeout(() => {
+            const resetFlash = [...updatedTasks];
+            resetFlash[index].flashed = false;
+            setTasks(resetFlash);
+            }, 500);
+        } else {
+
+            //filter with arrow function, if index matches i, filtered out
+            // we keep i that doesnt equal index
+            const updatedTasks = tasks.filter((_,i) => i !== index);
+            setTasks(updatedTasks);
+        }
     }
 
     function removeTask(index){
@@ -104,6 +126,19 @@ function ToDoList(){
           value={newEffort}
           onChange={handleEffortChange}
           min="0"></input>
+          <button
+            onClick={() => setIsRepeatable(!isRepeatable)}
+            style={{
+                fontSize: '18px',
+                padding: '4px 8px',
+                background: isRepeatable ? 'aquamarine' : 'grey',
+                border: '1px solid #ccc',
+                borderRadius: '4px',
+                cursor: 'pointer'
+            }}
+            >
+            🔁
+            </button>
                 <button
                     className="add-button"
                     onClick={addTask}
@@ -111,11 +146,14 @@ function ToDoList(){
                     Add   
 
                 </button>
+
+                
+
             </div>
             <ol>
                 {tasks.map((taskElement,index)=>
-                    <li key={index}><span className="text">
-                        {taskElement.text} (Effort: {taskElement.effort})
+                    <li key={index}  className={`task-item ${taskElement.flashed ? 'flashed' : ''}`} ><span className="text">
+                        {taskElement.text} (Effort: {taskElement.effort}) {taskElement.repeatable && '🔁'}
                         </span>
 
                     <button 
