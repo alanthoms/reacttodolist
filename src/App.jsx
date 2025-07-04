@@ -1,9 +1,9 @@
-
-import TodoList from './ToDoList.jsx'
+import { Home } from "./pages/home"
+import { HashRouter } from "react-router-dom"
 function App() {
   
     
-    return <TodoList/>
+    return <Home/>
       
   
 }

@@ -58,26 +58,30 @@ function ToDoList(){
         const task = tasks[index];
         setTotalEffort(prev => prev + task.effort);
 
-        if (task.repeatable) {
+       
             // Flash it briefly
             const updatedTasks = [...tasks];
             updatedTasks[index].flashed = true;
-            setTasks(updatedTasks);
 
             // Remove flash after a delay (e.g. 500ms)
+            
             setTimeout(() => {
-            const resetFlash = [...updatedTasks];
-            resetFlash[index].flashed = false;
-            setTasks(resetFlash);
-            }, 500);
-        } else {
 
+         if (!task.repeatable) {
             //filter with arrow function, if index matches i, filtered out
             // we keep i that doesnt equal index
             const updatedTasks = tasks.filter((_,i) => i !== index);
             setTasks(updatedTasks);
+         }else{
+            const resetFlash = [...updatedTasks];
+            resetFlash[index].flashed = false;
+            setTasks(resetFlash);
+         }
+            }, 500);
+        
+            
         }
-    }
+    
 
     function removeTask(index){
         // dont add effort from deleted task

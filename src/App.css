@@ -42,11 +42,18 @@
 }
 
 
+
 .flashed {
   animation: flashFade 0.5s ease-out;
 }
 
 @keyframes flashFade {
-  0% { background-color: #c0ffc0; }
-  100% { background-color: transparent; }
+  0% { background-color: #ed96f2; }
+  100% { background-color: #1a1a1a; }
+}
+
+
+
+.home-title{
+  color:#f4b4ffaa
 }
