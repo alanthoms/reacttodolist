@@ -1,10 +1,10 @@
 import TodoList from '../components/ToDoList.jsx'
 
-export function Home(){
+
+export function Home({ totalEffort, setTotalEffort }){
     return(
         <>
-        <h1 className = 'home-title'>Home Page</h1>
-        <TodoList/>
+        <TodoList totalEffort={totalEffort} setTotalEffort={setTotalEffort}/>
       </>
     )
 }

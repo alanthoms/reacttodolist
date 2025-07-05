@@ -1,6 +1,6 @@
 import React, {useState} from 'react'
 
-function ToDoList({ totalEffort, setTotalEffort }){
+function ToDoShop({ totalEffort, setTotalEffort }){
 
     const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
@@ -53,11 +53,13 @@ function ToDoList({ totalEffort, setTotalEffort }){
     }
 
     function deleteTask(index){
-        //add effort from deleted task
-        const task = tasks[index];
-        setTotalEffort(prev => prev + task.effort);
+        //check if user has enough effort points
 
-       
+        
+        const task = tasks[index];
+        if (totalEffort > task.effort){
+            //remove effort points
+            setTotalEffort(prev => prev - task.effort);
             // Flash it briefly
             const updatedTasks = [...tasks];
             updatedTasks[index].flashed = true;
@@ -77,6 +79,9 @@ function ToDoList({ totalEffort, setTotalEffort }){
             setTasks(resetFlash);
          }
             }, 500);
+        } else{
+            alert('You do not have enough points to purchase')
+        }
         
             
         }
@@ -90,42 +95,20 @@ function ToDoList({ totalEffort, setTotalEffort }){
         setTasks(updatedTasks);
     }
 
-    function moveTaskUp(index){
-
-
-        //check if at the top
-        if(index > 0){
-            const updatedTasks = [...tasks];
-            [updatedTasks[index],updatedTasks[index - 1]] = [updatedTasks[index -1],updatedTasks[index]]
-            setTasks(updatedTasks);
-        }
-
-    }
-
-    function moveTaskDown(index){
-
-        //check if at the bottom
-        if(index < tasks.length -1 ){
-            const updatedTasks = [...tasks];
-            [updatedTasks[index],updatedTasks[index + 1]] = [updatedTasks[index +1],updatedTasks[index]]
-            setTasks(updatedTasks);
-        }
-
-    }
+    
     return(
         <div className ="to-do-list">
-            <h1>To-Do-List</h1>
             <div>
                 <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
                 <input
                     type="text"
-                    placeholder="Enter a task..."
+                    placeholder="Enter Rewards"
                     value={newTask}
                     onChange={handleInputChange}
                 />
                 <input
                 type="number"
-          placeholder="Effort (e.g. 3)"
+          placeholder="Effort Cost"
           value={newEffort}
           onChange={handleEffortChange}
           min="0"></input>
@@ -166,18 +149,7 @@ function ToDoList({ totalEffort, setTotalEffort }){
                         ✅
                     </button>
 
-                    <button 
-                    className='move-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => moveTaskUp(index)}>
-                        ⬆️ 
-                    </button>
-                    <button 
-                    className='move-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => moveTaskDown(index)}>
-                        ⬇️
-                    </button>
+                    
                     <button 
                     className='remove-button' 
                     //arrow function so it does not call function immediately
@@ -190,4 +162,4 @@ function ToDoList({ totalEffort, setTotalEffort }){
         </div>
     );
 }
-export default ToDoList;
+export default ToDoShop;
