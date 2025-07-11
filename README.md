@@ -15,3 +15,8 @@ If you are developing a production application, we recommend using TypeScript wi
 Did Initial To Do List following Tutorial
 
 Effort was simple but should learn more about react hooks
+
+
+Okay learnt about routers and brushed on layout stuff but not really comfortable.
+
+Remind yourself to save every file after.

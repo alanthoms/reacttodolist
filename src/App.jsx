@@ -7,13 +7,14 @@ import React, { useState } from "react";
 function App() {
 
     const [totalEffort, setTotalEffort] = useState(0);
-    
+    const [tasks, setTasks] = useState([]);
+    const [rewards, setRewards] = useState([]);
     return (
     <Router>
         <Routes>
             <Route element = {<Layout/>}>
-                <Route path="/" element = {<Home totalEffort={totalEffort} setTotalEffort={setTotalEffort}/>}/>
-                <Route path="/shop" element = {<Shop totalEffort={totalEffort} setTotalEffort={setTotalEffort}/>}/>
+                <Route path="/" element = {<Home totalEffort={totalEffort} setTotalEffort={setTotalEffort} tasks={tasks} setTasks={setTasks}/>}/>
+                <Route path="/shop" element = {<Shop totalEffort={totalEffort} setTotalEffort={setTotalEffort} rewards={rewards} setRewards={setRewards}/>}/>
             </Route>
         </Routes>
     </Router>

@@ -1,8 +1,8 @@
 import React, {useState} from 'react'
 
-function ToDoList({ totalEffort, setTotalEffort }){
+function ToDoList({ totalEffort, setTotalEffort, tasks , setTasks}){
+    //    const [tasks, setTasks] = useState([]);
 
-    const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
 
     //store effort values

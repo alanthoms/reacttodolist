@@ -1,8 +1,7 @@
 import React, {useState} from 'react'
 
-function ToDoShop({ totalEffort, setTotalEffort }){
+function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }){
 
-    const [tasks, setTasks] = useState([]);
     const [newTask, setNewTask] = useState("");
 
     //store effort values
@@ -42,7 +41,7 @@ function ToDoShop({ totalEffort, setTotalEffort }){
         if (newTask.trim() !== '' && newEffort.trim() !== '') {
             const effortValue = parseInt(newEffort, 10);
             if (!isNaN(effortValue) && effortValue >= 0) {
-                setTasks(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false }]);
+                setRewards(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false }]);
                 setNewTask('');
                 setNewEffort('');
             } else {
@@ -56,12 +55,12 @@ function ToDoShop({ totalEffort, setTotalEffort }){
         //check if user has enough effort points
 
         
-        const task = tasks[index];
+        const task = rewards[index];
         if (totalEffort > task.effort){
             //remove effort points
             setTotalEffort(prev => prev - task.effort);
             // Flash it briefly
-            const updatedTasks = [...tasks];
+            const updatedTasks = [...rewards];
             updatedTasks[index].flashed = true;
 
             // Remove flash after a delay (e.g. 500ms)
@@ -71,12 +70,12 @@ function ToDoShop({ totalEffort, setTotalEffort }){
          if (!task.repeatable) {
             //filter with arrow function, if index matches i, filtered out
             // we keep i that doesnt equal index
-            const updatedTasks = tasks.filter((_,i) => i !== index);
-            setTasks(updatedTasks);
+            const updatedTasks = rewards.filter((_,i) => i !== index);
+            setRewards(updatedTasks);
          }else{
             const resetFlash = [...updatedTasks];
             resetFlash[index].flashed = false;
-            setTasks(resetFlash);
+            setRewards(resetFlash);
          }
             }, 500);
         } else{
@@ -91,8 +90,8 @@ function ToDoShop({ totalEffort, setTotalEffort }){
         // dont add effort from deleted task
         //filter with arrow function, if index matches i, filtered out
         // we keep i that doesnt equal index
-        const updatedTasks = tasks.filter((_,i) => i !== index);
-        setTasks(updatedTasks);
+        const updatedTasks = rewards.filter((_,i) => i !== index);
+        setRewards(updatedTasks);
     }
 
     
@@ -137,7 +136,7 @@ function ToDoShop({ totalEffort, setTotalEffort }){
 
             </div>
             <ol>
-                {tasks.map((taskElement,index)=>
+                {rewards.map((taskElement,index)=>
                     <li key={index}  className={`task-item ${taskElement.flashed ? 'flashed' : ''}`} ><span className="text">
                         {taskElement.text} (Effort: {taskElement.effort}) {taskElement.repeatable && '🔁'}
                         </span>
