@@ -57,8 +57,9 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }) {
 
   return (
     <div className="to-do-list">
+        <h1>Shop</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
-      <form
+      <form className = "task-form"
         onSubmit={(e) => {
           e.preventDefault();
           addReward();

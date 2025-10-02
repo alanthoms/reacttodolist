@@ -57,3 +57,44 @@
 .home-title{
   color:#f4b4ffaa
 }
+
+.task-form{
+  display: flex;
+  align-items: center;
+}
+
+
+.to-do-list{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 2rem;
+}
+
+body {
+  background: linear-gradient(39deg,#05feed,#0b005c,#e2059c);
+  background-size: 180% 180%;
+  background-position: 0% 50%; /* Start position */
+}
+
+.gradient-forward {
+  animation: gradient-forward 1s ease forwards;
+}
+
+.gradient-backward {
+  animation: gradient-backward 1s ease forwards;
+}
+
+@keyframes gradient-forward {
+  0%   { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
+@keyframes gradient-backward {
+  0%   { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+
+
+

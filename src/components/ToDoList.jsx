@@ -113,7 +113,9 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
     }
     return (
         <div className="to-do-list">
-            <form
+            <h1>Tasks</h1>
+                <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
+            <form className = "task-form"
                 onSubmit={(e) => {
                     e.preventDefault(); // prevent page reload
                     addTask();
