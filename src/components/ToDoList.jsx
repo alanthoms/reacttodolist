@@ -1,6 +1,6 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 
-function ToDoList({ totalEffort, setTotalEffort, tasks , setTasks}){
+function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
     //    const [tasks, setTasks] = useState([]);
 
     const [newTask, setNewTask] = useState("");
@@ -9,15 +9,14 @@ function ToDoList({ totalEffort, setTotalEffort, tasks , setTasks}){
     const [newEffort, setNewEffort] = useState('');
 
     const [isRepeatable, setIsRepeatable] = useState(false);
-    
+
     function handleRepeatableChange(event) {
         setIsRepeatable(event.target.checked);
     }
 
-
     //event handler, function uses setter for newTask to access event parameter target's value
     // enables visual change of textbox value
-    function handleInputChange(event){
+    function handleInputChange(event) {
         setNewTask(event.target.value);
 
     }
@@ -27,7 +26,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks , setTasks}){
     }
 
 
-    function addTask(){
+    function addTask() {
         //updater function
         //setTasks is state updater functoin for tasks array from Use State
         //passing in an updater function
@@ -47,143 +46,142 @@ function ToDoList({ totalEffort, setTotalEffort, tasks , setTasks}){
                 setNewEffort('');
             } else {
                 alert('Please enter a valid non-negative number for effort.');
-                }
             }
+        }
 
     }
 
-    function deleteTask(index){
+    function deleteTask(index) {
         //add effort from deleted task
         const task = tasks[index];
         setTotalEffort(prev => prev + task.effort);
 
-       
-            // Flash it briefly
-            const updatedTasks = [...tasks];
-            updatedTasks[index].flashed = true;
 
-            // Remove flash after a delay (e.g. 500ms)
-            
-            setTimeout(() => {
+        // Flash it briefly
+        const updatedTasks = [...tasks];
+        updatedTasks[index].flashed = true;
 
-         if (!task.repeatable) {
-            //filter with arrow function, if index matches i, filtered out
-            // we keep i that doesnt equal index
-            const updatedTasks = tasks.filter((_,i) => i !== index);
-            setTasks(updatedTasks);
-         }else{
-            const resetFlash = [...updatedTasks];
-            resetFlash[index].flashed = false;
-            setTasks(resetFlash);
-         }
-            }, 500);
-        
-            
-        }
-    
+        // Remove flash after a delay (e.g. 500ms)
 
-    function removeTask(index){
+        setTimeout(() => {
+
+            if (!task.repeatable) {
+                //filter with arrow function, if index matches i, filtered out
+                // we keep i that doesnt equal index
+                const updatedTasks = tasks.filter((_, i) => i !== index);
+                setTasks(updatedTasks);
+            } else {
+                const resetFlash = [...updatedTasks];
+                resetFlash[index].flashed = false;
+                setTasks(resetFlash);
+            }
+        }, 500);
+
+
+    }
+
+
+    function removeTask(index) {
         // dont add effort from deleted task
         //filter with arrow function, if index matches i, filtered out
         // we keep i that doesnt equal index
-        const updatedTasks = tasks.filter((_,i) => i !== index);
+        const updatedTasks = tasks.filter((_, i) => i !== index);
         setTasks(updatedTasks);
     }
 
-    function moveTaskUp(index){
+    function moveTaskUp(index) {
 
 
         //check if at the top
-        if(index > 0){
+        if (index > 0) {
             const updatedTasks = [...tasks];
-            [updatedTasks[index],updatedTasks[index - 1]] = [updatedTasks[index -1],updatedTasks[index]]
+            [updatedTasks[index], updatedTasks[index - 1]] = [updatedTasks[index - 1], updatedTasks[index]]
             setTasks(updatedTasks);
         }
 
     }
 
-    function moveTaskDown(index){
+    function moveTaskDown(index) {
 
         //check if at the bottom
-        if(index < tasks.length -1 ){
+        if (index < tasks.length - 1) {
             const updatedTasks = [...tasks];
-            [updatedTasks[index],updatedTasks[index + 1]] = [updatedTasks[index +1],updatedTasks[index]]
+            [updatedTasks[index], updatedTasks[index + 1]] = [updatedTasks[index + 1], updatedTasks[index]]
             setTasks(updatedTasks);
         }
 
     }
-    return(
-        <div className ="to-do-list">
-            <h1>To-Do-List</h1>
-            <div>
-                <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
+    return (
+        <div className="to-do-list">
+            <form
+                onSubmit={(e) => {
+                    e.preventDefault(); // prevent page reload
+                    addTask();
+                }}
+            >
                 <input
                     type="text"
                     placeholder="Enter a task..."
                     value={newTask}
                     onChange={handleInputChange}
+                    required
                 />
                 <input
-                type="number"
-          placeholder="Effort (e.g. 3)"
-          value={newEffort}
-          onChange={handleEffortChange}
-          min="0"></input>
-          <button
-            onClick={() => setIsRepeatable(!isRepeatable)}
-            style={{
-                fontSize: '18px',
-                padding: '4px 8px',
-                background: isRepeatable ? 'aquamarine' : 'grey',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-                cursor: 'pointer'
-            }}
-            >
-            🔁
-            </button>
+                    type="number"
+                    placeholder="Effort (e.g. 3)"
+                    value={newEffort}
+                    onChange={handleEffortChange}
+                    min="0"
+                    required
+                />
                 <button
-                    className="add-button"
-                    onClick={addTask}
-                    >
-                    Add   
-
+                    type="button"
+                    onClick={() => setIsRepeatable(!isRepeatable)}
+                    style={{
+                        fontSize: '18px',
+                        padding: '4px 8px',
+                        background: isRepeatable ? 'aquamarine' : 'grey',
+                        border: '1px solid #ccc',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    🔁
                 </button>
+                <button type="submit">Add</button>
+            </form>
 
-                
-
-            </div>
             <ol>
-                {tasks.map((taskElement,index)=>
-                    <li key={index}  className={`task-item ${taskElement.flashed ? 'flashed' : ''}`} ><span className="text">
+                {tasks.map((taskElement, index) =>
+                    <li key={index} className={`task-item ${taskElement.flashed ? 'flashed' : ''}`} ><span className="text">
                         {taskElement.text} (Effort: {taskElement.effort}) {taskElement.repeatable && '🔁'}
-                        </span>
+                    </span>
 
-                    <button 
-                    className='delete-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => deleteTask(index)}>
-                        ✅
-                    </button>
+                        <button
+                            className='delete-button'
+                            //arrow function so it does not call function immediately
+                            onClick={() => deleteTask(index)}>
+                            ✅
+                        </button>
 
-                    <button 
-                    className='move-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => moveTaskUp(index)}>
-                        ⬆️ 
-                    </button>
-                    <button 
-                    className='move-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => moveTaskDown(index)}>
-                        ⬇️
-                    </button>
-                    <button 
-                    className='remove-button' 
-                    //arrow function so it does not call function immediately
-                    onClick={() => removeTask(index)}>
-                        ⛔️
-                    </button>
+                        <button
+                            className='move-button'
+                            //arrow function so it does not call function immediately
+                            onClick={() => moveTaskUp(index)}>
+                            ⬆️
+                        </button>
+                        <button
+                            className='move-button'
+                            //arrow function so it does not call function immediately
+                            onClick={() => moveTaskDown(index)}>
+                            ⬇️
+                        </button>
+                        <button
+                            className='remove-button'
+                            //arrow function so it does not call function immediately
+                            onClick={() => removeTask(index)}>
+                            ⛔️
+                        </button>
                     </li>
                 )}
             </ol>
