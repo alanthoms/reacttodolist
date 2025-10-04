@@ -17,8 +17,8 @@ export function NavBar(){
     return (
         <div className="nav-bar">
             <h1>To Do List</h1>
-            <Link to="/" className='home-title'><button>Home</button></Link>
-            <Link to="/Shop"><button>Shop</button></Link>
+            <Link to="/" className='home-title'><button className="holographic-card">Home</button></Link>
+            <Link to="/Shop"><button className="holographic-card">Shop</button></Link>
         </div>
     )
 }

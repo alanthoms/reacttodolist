@@ -1,5 +1,5 @@
 #root {
-  max-width: 1280px;
+  max-width: none;
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
@@ -71,30 +71,77 @@
   margin-top: 2rem;
 }
 
-body {
-  background: linear-gradient(39deg,#05feed,#0b005c,#e2059c);
-  background-size: 180% 180%;
-  background-position: 0% 50%; /* Start position */
+.nav-bar button{
+  background: none;
+  border: 1px solid rgb(216, 235, 255);
+  color: white;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0px 0px 2px 0px rgba(255, 255, 255, 0.5);
 }
 
-.gradient-forward {
-  animation: gradient-forward 1s ease forwards;
+.nav-bar button:hover{
+  box-shadow: 0px 0px 2px 0px rgba(255, 255, 255, 1);
+  transition: 0.3s;
 }
 
-.gradient-backward {
-  animation: gradient-backward 1s ease forwards;
-}
-
-@keyframes gradient-forward {
-  0%   { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-@keyframes gradient-backward {
-  0%   { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+.nav-bar button:active{
+  transform: scale(0.95);
+  transition: 0.3s;
 }
 
 
+.holographic-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #000;
+}
 
+.holographic-card {
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+  border-radius: 15px;
+  transition: all 0.5s ease;
+}
 
+.holographic-card h2 {
+  color: #0ff;
+  font-size: 2rem;
+  position: relative;
+  z-index: 2;
+}
+
+.holographic-card::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    0deg, 
+    transparent, 
+    transparent 30%, 
+    rgba(255, 255, 255, 0.3)
+  );
+  transform: rotate(-45deg);
+  transition: all 0.5s ease;
+  opacity: 0;
+}
+
+.holographic-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0,255,255,0.5);
+}
+
+.holographic-card:hover::before {
+  opacity: 1;
+  transform: rotate(-45deg) translateY(100%);
+}

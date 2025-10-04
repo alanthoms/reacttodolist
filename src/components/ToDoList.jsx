@@ -7,6 +7,9 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
 
     //store effort values
     const [newEffort, setNewEffort] = useState('');
+    //stores completed tasks for display
+
+    const [completedTasks, setCompletedTasks] = useState([]);
 
     const [isRepeatable, setIsRepeatable] = useState(false);
 
@@ -51,7 +54,12 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
 
     }
 
-    function deleteTask(index) {
+    function addCompletedTask(task) {
+        setCompletedTasks(ct => [...ct, task]);
+    }
+        
+
+    function clearTask(index) {
         //add effort from deleted task
         const task = tasks[index];
         setTotalEffort(prev => prev + task.effort);
@@ -76,6 +84,8 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
                 setTasks(resetFlash);
             }
         }, 500);
+
+        addCompletedTask(task);
 
 
     }
@@ -114,8 +124,8 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
     return (
         <div className="to-do-list">
             <h1>Tasks</h1>
-                <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
-            <form className = "task-form"
+            <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
+            <form className="task-form"
                 onSubmit={(e) => {
                     e.preventDefault(); // prevent page reload
                     addTask();
@@ -162,7 +172,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
                         <button
                             className='delete-button'
                             //arrow function so it does not call function immediately
-                            onClick={() => deleteTask(index)}>
+                            onClick={() => clearTask(index)}>
                             ✅
                         </button>
 
