@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }) {
+function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedTasks, setCompletedTasks }) {
   const [newReward, setNewReward] = useState("");
   const [newEffort, setNewEffort] = useState('');
   const [isRepeatable, setIsRepeatable] = useState(false);

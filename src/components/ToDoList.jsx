@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 
-function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
+function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks, setCompletedTasks }) {
     //    const [tasks, setTasks] = useState([]);
 
     const [newTask, setNewTask] = useState("");
@@ -9,7 +9,6 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
     const [newEffort, setNewEffort] = useState('');
     //stores completed tasks for display
 
-    const [completedTasks, setCompletedTasks] = useState([]);
 
     const [isRepeatable, setIsRepeatable] = useState(false);
 
@@ -36,15 +35,11 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
         //idk t is latest version of task list and spreading by ... helps update immutably 
 
         //simple if that removes whitespace and checks for empty string
-        /*if(newTask.trim() !==""){
-            setTasks(t => [...t,newTask])
-            setNewTask("");
-        }*/
 
         if (newTask.trim() !== '' && newEffort.trim() !== '') {
             const effortValue = parseInt(newEffort, 10);
             if (!isNaN(effortValue) && effortValue >= 0) {
-                setTasks(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false }]);
+                setTasks(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false, date: null }]);
                 setNewTask('');
                 setNewEffort('');
             } else {
@@ -57,13 +52,15 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
     function addCompletedTask(task) {
         setCompletedTasks(ct => [...ct, task]);
     }
-        
+
 
     function clearTask(index) {
         //add effort from deleted task
-        const task = tasks[index];
-        setTotalEffort(prev => prev + task.effort);
 
+        const d = new Date()
+        const task = tasks[index];
+        task.date = d.toLocaleString();
+        setTotalEffort(prev => prev + task.effort);
 
         // Flash it briefly
         const updatedTasks = [...tasks];
@@ -97,6 +94,14 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
         // we keep i that doesnt equal index
         const updatedTasks = tasks.filter((_, i) => i !== index);
         setTasks(updatedTasks);
+    }
+
+    function removeCompletedTask(index) {
+        // dont add effort from deleted task
+        //filter with arrow function, if index matches i, filtered out
+        // we keep i that doesnt equal index
+        const updatedCompletedTasks = completedTasks.filter((_, i) => i !== index);
+        setCompletedTasks(updatedCompletedTasks);
     }
 
     function moveTaskUp(index) {
@@ -195,6 +200,24 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks }) {
                             ⛔️
                         </button>
                     </li>
+                )}
+            </ol>
+
+            <h1>Completed Tasks</h1>
+            <ol>
+                {completedTasks.map((ctaskElement, index) =>
+                    <li key={index} className={`task-item ${ctaskElement.flashed ? 'flashed' : ''}`} ><span className="text">
+                        {ctaskElement.text} (Effort: {ctaskElement.effort}) {ctaskElement.repeatable && '🔁'}
+                    </span>
+                        <span>{ctaskElement.date}</span>
+<button
+                            className='remove-completed-button'
+                            //arrow function so it does not call function immediately
+                            onClick={() => removeCompletedTask(index)}>
+                            ⛔️
+                        </button>
+                    </li>
+                    
                 )}
             </ol>
         </div>
