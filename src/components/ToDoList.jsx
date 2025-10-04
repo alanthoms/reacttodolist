@@ -59,6 +59,9 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
 
         const d = new Date()
         const task = tasks[index];
+        //create copy for completed task
+        const completedTask = { ...task, date: d.toLocaleString() };
+
         task.date = d.toLocaleString();
         setTotalEffort(prev => prev + task.effort);
 
