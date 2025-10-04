@@ -85,7 +85,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
             }
         }, 500);
 
-        addCompletedTask(task);
+        addCompletedTask(completedTask);
 
 
     }
