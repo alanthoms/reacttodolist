@@ -9,6 +9,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
     const [newEffort, setNewEffort] = useState('');
     //stores completed tasks for display
 
+    const [showCompleted, setShowCompleted] = useState(false);
 
     const [isRepeatable, setIsRepeatable] = useState(false);
 
@@ -205,24 +206,31 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
                     </li>
                 )}
             </ol>
+            <button
+                onClick={() => setShowCompleted(!showCompleted)}
+            >
+                {showCompleted ? 'Hide Completed Tasks' : 'Show Completed Tasks'}
+            </button>
 
-            <h1>Completed Tasks</h1>
-            <ol>
-                {completedTasks.map((ctaskElement, index) =>
-                    <li key={index} className={`task-item ${ctaskElement.flashed ? 'flashed' : ''}`} ><span className="text">
-                        {ctaskElement.text} (Effort: {ctaskElement.effort}) {ctaskElement.repeatable && '🔁'}
-                    </span>
-                        <span>{ctaskElement.date}</span>
-<button
-                            className='remove-completed-button'
-                            //arrow function so it does not call function immediately
-                            onClick={() => removeCompletedTask(index)}>
-                            ⛔️
-                        </button>
-                    </li>
-                    
-                )}
-            </ol>
+            <div className={`completed-section ${showCompleted ? 'visible' : 'hidden'}`}>
+                <h1>Completed Tasks</h1>
+                <ol>
+                    {completedTasks.map((ctaskElement, index) =>
+                        <li key={index} className={`task-item ${ctaskElement.flashed ? 'flashed' : ''}`} ><span className="text">
+                            {ctaskElement.text} (Effort: {ctaskElement.effort}) {ctaskElement.repeatable && '🔁'}
+                        </span>
+                            <span>{ctaskElement.date}</span>
+                            <button
+                                className='remove-completed-button'
+                                //arrow function so it does not call function immediately
+                                onClick={() => removeCompletedTask(index)}>
+                                ⛔️
+                            </button>
+                        </li>
+
+                    )}
+                </ol>
+            </div>
         </div>
     );
 }

@@ -145,3 +145,18 @@
   opacity: 1;
   transform: rotate(-45deg) translateY(100%);
 }
+
+
+.completed-section {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transform: scaleY(0.95);
+  transition: all 0.4s ease;
+}
+
+.completed-section.visible {
+  max-height: 1000px; /* large enough to fit content */
+  opacity: 1;
+  transform: scaleY(1);
+}

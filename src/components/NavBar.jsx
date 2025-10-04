@@ -5,7 +5,7 @@ export function NavBar(){
     const location = useLocation();
 
     useEffect(() => {
-        if (location.pathname === "/Shop") {
+        if (location.pathname === "/shop") {
             document.body.classList.remove("gradient-backward");
             document.body.classList.add("gradient-forward");
         } else if (location.pathname === "/") {
@@ -18,7 +18,7 @@ export function NavBar(){
         <div className="nav-bar">
             <h1>To Do List</h1>
             <Link to="/" className='home-title'><button className="holographic-card">Home</button></Link>
-            <Link to="/Shop"><button className="holographic-card">Shop</button></Link>
+            <Link to="/shop"><button className="holographic-card">Shop</button></Link>
         </div>
     )
 }
