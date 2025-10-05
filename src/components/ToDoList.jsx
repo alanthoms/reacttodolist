@@ -13,6 +13,9 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
 
     const [isRepeatable, setIsRepeatable] = useState(false);
 
+    // Load from localStorage once
+    
+
     function handleRepeatableChange(event) {
         setIsRepeatable(event.target.checked);
     }
@@ -206,7 +209,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
                     </li>
                 )}
             </ol>
-            <button
+            <button className='toggle-completed-button'
                 onClick={() => setShowCompleted(!showCompleted)}
             >
                 {showCompleted ? 'Hide Completed Tasks' : 'Show Completed Tasks'}

@@ -71,7 +71,7 @@
   margin-top: 2rem;
 }
 
-.nav-bar button{
+.nav-bar button, .toggle-completed-button {
   background: none;
   border: 1px solid rgb(216, 235, 255);
   color: white;
