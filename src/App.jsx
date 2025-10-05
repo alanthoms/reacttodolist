@@ -5,10 +5,8 @@ import { Shop } from "./pages/shop";
 import { Layout } from "./Layout";
 
 function App() {
-    const [rewards, setRewards] = useState([]);
 
-    // Load from localStorage once
-    // ✅ Initialize state directly from localStorage (lazy initialization)
+    //  Initialize state directly from localStorage (lazy initialization)
     const [tasks, setTasks] = useState(() => {
         const saved = localStorage.getItem("tasks");
         console.log("Loaded tasks:", JSON.parse(saved));
@@ -27,15 +25,23 @@ function App() {
         return saved ? JSON.parse(saved) : 0;
     });
 
+    const [rewards, setRewards] = useState(() => {
+        const saved = localStorage.getItem("rewards");
+        console.log("Loaded rewards:", JSON.parse(saved));
+        return saved ? JSON.parse(saved) : [];
+    });
+
     // Save to localStorage whenever any state changes
     useEffect(() => {
         localStorage.setItem("tasks", JSON.stringify(tasks));
         localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
         localStorage.setItem("totalEffort", JSON.stringify(totalEffort));
+        ; localStorage.setItem("rewards", JSON.stringify(rewards));
         console.log("Saved tasks:", tasks);
         console.log("Saved completed tasks:", completedTasks);
         console.log("Saved total effort:", totalEffort);
-    }, [tasks, completedTasks, totalEffort]);
+        console.log("Saved rewards:", rewards);
+    }, [tasks, completedTasks, totalEffort, rewards]);
 
     return (
         <Router>
