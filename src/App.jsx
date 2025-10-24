@@ -36,7 +36,7 @@ function App() {
         localStorage.setItem("tasks", JSON.stringify(tasks));
         localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
         localStorage.setItem("totalEffort", JSON.stringify(totalEffort));
-        ; localStorage.setItem("rewards", JSON.stringify(rewards));
+        localStorage.setItem("rewards", JSON.stringify(rewards));
         console.log("Saved tasks:", tasks);
         console.log("Saved completed tasks:", completedTasks);
         console.log("Saved total effort:", totalEffort);
