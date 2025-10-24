@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const pool  = require('./db');
+const pool = require('./db');
 const bcrypt = require("bcryptjs");
+require('dotenv').config();
 
 //middleware
 app.use(cors());
@@ -21,44 +22,77 @@ console.log("✅ CORS middleware loaded");
 //gives access to req.body property 
 app.use(express.json());
 app.use((req, res, next) => {
-  console.log("🔹 Request received:", req.method, req.url);
-  next();
+    console.log("🔹 Request received:", req.method, req.url);
+    next();
 });
 
 
 
 //ROUTES//
 
+
+
 // User Registration (simplified)
 app.post("/api/auth/register", async (req, res) => {
-  const { username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-  if (!username || !email || !password) {
-    return res.status(400).json({ error: "Please provide username, email, and password." });
-  }
-
-  try {
-    // Hash the password before storing
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Insert the new user into the database
-    const result = await pool.query(
-      "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email",
-      [username, email, hashedPassword]
-    );
-
-    res.json({ message: "User registered successfully!", user: result.rows[0] });
-  } catch (error) {
-    console.error("Registration error:", error.message);
-
-    // Handle unique constraint violation (duplicate username/email)
-    if (error.code === "23505") {
-      return res.status(400).json({ error: "Username or email already exists." });
+    if (!username || !email || !password) {
+        return res.status(400).json({ error: "Please provide username, email, and password." });
     }
 
-    res.status(500).json({ error: "Registration failed." });
-  }
+    try {
+        // Hash the password before storing
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Insert the new user into the database
+        const result = await pool.query(
+            "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email",
+            [username, email, hashedPassword]
+        );
+
+        res.json({ message: "User registered successfully!", user: result.rows[0] });
+    } catch (error) {
+        console.error("Registration error:", error.message);
+
+        // Handle unique constraint violation (duplicate username/email)
+        if (error.code === "23505") {
+            return res.status(400).json({ error: "Username or email already exists." });
+        }
+
+        res.status(500).json({ error: "Registration failed." });
+    }
 });
+
+// User Login (simplified)
+const jwt = require("jsonwebtoken");
+
+app.post("/api/auth/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    if (!email || !password) return res.status(400).json({ error: "Email and password required" });
+
+    try {
+        const userResult = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+        const user = userResult.rows[0];
+        if (!user) return res.status(400).json({ error: "Invalid email or password" });
+
+        const isMatch = await bcrypt.compare(password, user.password_hash);
+        if (!isMatch) return res.status(400).json({ error: "Invalid email or password" });
+
+        // Generate JWT
+        const token = jwt.sign(
+            { userId: user.id, username: user.username },
+            process.env.JWT_SECRET, // ✅ use your real secret
+            { expiresIn: "1h" }
+        );
+
+        res.json({ user: { id: user.id, username: user.username, email: user.email }, token });
+    } catch (err) {
+        console.error("Login error:", err.message);
+        res.status(500).json({ error: "Login failed" });
+    }
+});
+
 
 // Create a task
 app.post('/tasks', async (req, res) => {
@@ -109,7 +143,7 @@ app.put('/tasks/:id', async (req, res) => {
             [text, id]
         );
         res.json(updatedTask.rows[0]);
-    }           catch (err) { 
+    } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Failed to update task" });
     }
@@ -125,16 +159,16 @@ app.delete('/tasks/:id', async (req, res) => {
         console.error(err.message);
         res.status(500).json({ error: "Failed to delete task" });
     }
-});  
+});
 
 app.get("/api/data", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT id, username FROM users");
-    res.json(result.rows);
-  } catch (error) {
-    console.error("Error fetching data:", error);
-    res.status(500).json({ error: "Failed to fetch data" });
-  }
+    try {
+        const result = await pool.query("SELECT id, username FROM users");
+        res.json(result.rows);
+    } catch (error) {
+        console.error("Error fetching data:", error);
+        res.status(500).json({ error: "Failed to fetch data" });
+    }
 });
 
 
