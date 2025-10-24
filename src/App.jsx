@@ -11,8 +11,8 @@ import { Navigate } from "react-router-dom";
 function App() {
 
     const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return !!localStorage.getItem("token"); // true if token exists
-  });
+        return !!localStorage.getItem("token"); // true if token exists
+    });
     //  Initialize state directly from localStorage (lazy initialization)
     const [tasks, setTasks] = useState(() => {
         const saved = localStorage.getItem("tasks");
@@ -49,6 +49,23 @@ function App() {
         console.log("Saved total effort:", totalEffort);
         console.log("Saved rewards:", rewards);
     }, [tasks, completedTasks, totalEffort, rewards]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await fetch("http://localhost:4000/api/data"); // or your backend route
+                if (!response.ok) throw new Error("Failed to fetch data");
+                const result = await response.json();
+                console.log("Fetched data from backend:", result);
+                // you can store it in state if needed
+                // setData(result);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <Router>

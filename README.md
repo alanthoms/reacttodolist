@@ -20,3 +20,17 @@ Effort was simple but should learn more about react hooks
 Okay learnt about routers and brushed on layout stuff but not really comfortable.
 
 Remind yourself to save every file after.
+
+
+
+Lazy initiliazer, local storage incorporated.
+
+Express used to quickly create server in node.js
+
+Node.js being an alternative way to run js? not on website
+
+cors for differnet domain applications to interact with each other
+
+pg connect database to server for postgre queries
+
+my god connecting vite to postgres was so difficult, just for the main issue is that macos uses port 5000 for airplay.

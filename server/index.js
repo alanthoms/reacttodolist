@@ -2,14 +2,29 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const pool  = require('./db');
-
 const bcrypt = require("bcryptjs");
 
 //middleware
 app.use(cors());
+/** 
+app.use(cors({
+  origin: "http://localhost:5173", // Vite dev server port
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+}));
+*/
+
+console.log("✅ CORS middleware loaded");
+
 //fullstack needs data from client side by request body
 //gives access to req.body property 
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log("🔹 Request received:", req.method, req.url);
+  next();
+});
+
 
 
 //ROUTES//
@@ -58,9 +73,6 @@ app.post('/tasks', async (req, res) => {
         console.error(err.message);
         res.status(500).json({ error: "Failed to create task" });
     }
-});
-app.listen(5000, () => {
-    console.log('Server is running on port 5000');
 });
 
 
@@ -114,3 +126,19 @@ app.delete('/tasks/:id', async (req, res) => {
         res.status(500).json({ error: "Failed to delete task" });
     }
 });  
+
+app.get("/api/data", async (req, res) => {
+  try {
+    const result = await pool.query("SELECT id, username FROM users");
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Failed to fetch data" });
+  }
+});
+
+
+
+app.listen(4000, () => {
+    console.log('Server is running on port 4000');
+});
