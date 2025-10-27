@@ -6,13 +6,12 @@ import { Layout } from "./Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import { Navigate } from "react-router-dom";
+import { getUser, logout } from "./components/Logout";
 
 
 function App() {
-
-    const [isAuthenticated, setIsAuthenticated] = useState(() => {
-        return !!localStorage.getItem("token"); // true if token exists
-    });
+    const [user, setUser] = useState(() => getUser());
+    const [isAuthenticated, setIsAuthenticated] = useState(() => !!getUser());
     //  Initialize state directly from localStorage (lazy initialization)
     const [tasks, setTasks] = useState(() => {
         const saved = localStorage.getItem("tasks");
@@ -53,16 +52,28 @@ function App() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await fetch("http://localhost:4000/api/data"); // or your backend route
-                if (!response.ok) throw new Error("Failed to fetch data");
+                const token = localStorage.getItem("token");
+
+                const response = await fetch("http://localhost:4000/api/data", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+
+                if (response.status === 403 || response.status === 401) {
+                    alert("Session expired. Please log in again.");
+                    logout(); // remove token and redirect
+                    return;
+                }
+
                 const result = await response.json();
-                console.log("Fetched data from backend:", result);
-                // you can store it in state if needed
-                // setData(result);
+                console.log("Fetched data:", result);
             } catch (error) {
                 console.error("Error fetching data:", error);
             }
         };
+
 
         fetchData();
     }, []);

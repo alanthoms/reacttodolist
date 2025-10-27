@@ -1,5 +1,6 @@
 import { Link, useLocation } from "react-router-dom"
 import { useEffect } from "react";
+import { logout } from "./Logout";
 
 export function NavBar(){
     const location = useLocation();
@@ -19,6 +20,7 @@ export function NavBar(){
             <h1>To Do List</h1>
             <Link to="/" className='home-title'><button className="holographic-card">Home</button></Link>
             <Link to="/shop"><button className="holographic-card">Shop</button></Link>
+            <button onClick={logout} className="holographic-card">Logout</button>
         </div>
     )
 }

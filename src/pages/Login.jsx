@@ -42,7 +42,7 @@ const Login = ({ setIsAuthenticated }) => {
 
       alert("Login Successful!");
       setIsAuthenticated(true);  // instantly update App's state
-      navigate("/dashboard");
+      navigate("/Home");
     } catch (err) {
       console.error("Login error:", err.message);
       setError(err.message || "Something went wrong");
