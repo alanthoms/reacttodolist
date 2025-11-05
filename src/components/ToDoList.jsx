@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks, setCompletedTasks }) {
     //    const [tasks, setTasks] = useState([]);
-
+    const token = localStorage.getItem("token");
     const [newTask, setNewTask] = useState("");
 
     //store effort values
@@ -14,7 +14,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
     const [isRepeatable, setIsRepeatable] = useState(false);
 
     // Load from localStorage once
-    
+
 
     function handleRepeatableChange(event) {
         setIsRepeatable(event.target.checked);
@@ -32,25 +32,40 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
     }
 
 
-    function addTask() {
+
+    async function addTask() {
         //updater function
         //setTasks is state updater functoin for tasks array from Use State
         //passing in an updater function
         //idk t is latest version of task list and spreading by ... helps update immutably 
 
-        //simple if that removes whitespace and checks for empty string
-
-        if (newTask.trim() !== '' && newEffort.trim() !== '') {
-            const effortValue = parseInt(newEffort, 10);
-            if (!isNaN(effortValue) && effortValue >= 0) {
-                setTasks(t => [...t, { text: newTask, effort: effortValue, repeatable: isRepeatable, flashed: false, date: null }]);
-                setNewTask('');
-                setNewEffort('');
-            } else {
-                alert('Please enter a valid non-negative number for effort.');
-            }
+        //        simple if that removes whitespace and checks for empty string
+        if (newTask.trim() == '' && newEffort.trim() == '') return;
+        const effortValue = parseInt(newEffort, 10);
+        if (isNaN(effortValue) || effortValue < 0) {
+            alert('Please enter a valid non-negative number for effort.');
+            return;
         }
 
+        try {
+            const body = { text: newTask, effort: effortValue, repeatable: isRepeatable };
+            const response = await fetch("http://localhost:4000/tasks", {
+                method: "POST",
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify(body)//converts JS object to JSON string
+            });
+            console.log(response);
+            if (!response.ok) {
+                const error = await response.text();
+                throw new Error(`Server error: ${response.status} - ${error}`);
+            }
+            const newTaskFromServer = await response.json();
+            setTasks(t => [...t, newTaskFromServer]);
+            setNewTask('');
+            setNewEffort('');
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 
     function addCompletedTask(task) {

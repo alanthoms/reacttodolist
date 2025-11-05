@@ -1,133 +1,102 @@
 import React, { useState, useEffect } from "react";
-import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { Home } from "./pages/home";
 import { Shop } from "./pages/shop";
 import { Layout } from "./Layout";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { Navigate } from "react-router-dom";
 import { getUser, logout } from "./components/Logout";
 
-
 function App() {
-    const [user, setUser] = useState(() => getUser());
-    const [isAuthenticated, setIsAuthenticated] = useState(() => !!getUser());
-    //  Initialize state directly from localStorage (lazy initialization)
-    const [tasks, setTasks] = useState(() => {
-        const saved = localStorage.getItem("tasks");
-        console.log("Loaded tasks:", JSON.parse(saved));
-        return saved ? JSON.parse(saved) : [];
-    });
+  const [user, setUser] = useState(() => getUser());
+  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getUser());
 
-    const [completedTasks, setCompletedTasks] = useState(() => {
-        const saved = localStorage.getItem("completedTasks");
-        console.log("Loaded completed tasks:", JSON.parse(saved));
-        return saved ? JSON.parse(saved) : [];
-    });
+  const [tasks, setTasks] = useState([]);
+  const [completedTasks, setCompletedTasks] = useState([]);
+  const [totalEffort, setTotalEffort] = useState(0);
+  const [rewards, setRewards] = useState([]);
 
-    const [totalEffort, setTotalEffort] = useState(() => {
-        const saved = localStorage.getItem("totalEffort");
-        console.log("Loaded total effort:", JSON.parse(saved));
-        return saved ? JSON.parse(saved) : 0;
-    });
+  // Fetch tasks from backend on load
+  useEffect(() => {
+    const fetchTasks = async () => {
+      if (!isAuthenticated) return;
 
-    const [rewards, setRewards] = useState(() => {
-        const saved = localStorage.getItem("rewards");
-        console.log("Loaded rewards:", JSON.parse(saved));
-        return saved ? JSON.parse(saved) : [];
-    });
+      const token = localStorage.getItem("token");
+      try {
+        const res = await fetch("http://localhost:4000/tasks", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
 
-    // Save to localStorage whenever any state changes
-    useEffect(() => {
-        localStorage.setItem("tasks", JSON.stringify(tasks));
-        localStorage.setItem("completedTasks", JSON.stringify(completedTasks));
-        localStorage.setItem("totalEffort", JSON.stringify(totalEffort));
-        localStorage.setItem("rewards", JSON.stringify(rewards));
-        console.log("Saved tasks:", tasks);
-        console.log("Saved completed tasks:", completedTasks);
-        console.log("Saved total effort:", totalEffort);
-        console.log("Saved rewards:", rewards);
-    }, [tasks, completedTasks, totalEffort, rewards]);
+        if (res.status === 401 || res.status === 403) {
+          alert("Session expired. Please log in again.");
+          logout();
+          return;
+        }
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const token = localStorage.getItem("token");
+        const data = await res.json();
+        // Separate completed and active tasks
+        setTasks(data.filter(task => !task.is_completed));
+        const completed = data.filter(task => task.is_completed);
+        setCompletedTasks(completed);
+        setTotalEffort(completed.reduce((sum, t) => sum + t.effort, 0));
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+      }
+    };
 
-                const response = await fetch("http://localhost:4000/api/data", {
-                    headers: {
-                        "Content-Type": "application/json",
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
+    fetchTasks();
+  }, [isAuthenticated]);
 
-                if (response.status === 403 || response.status === 401) {
-                    alert("Session expired. Please log in again.");
-                    logout(); // remove token and redirect
-                    return;
-                }
+  return (
+    <Router>
+      <Routes>
+        {/* Public routes */}
+        <Route
+          path="/login"
+          element={isAuthenticated ? <Navigate to="/" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
+        />
+        <Route
+          path="/register"
+          element={isAuthenticated ? <Navigate to="/" /> : <Register />}
+        />
 
-                const result = await response.json();
-                console.log("Fetched data:", result);
-            } catch (error) {
-                console.error("Error fetching data:", error);
-            }
-        };
+        {/* Private routes */}
+        <Route element={<Layout />}>
+          <Route
+            path="/"
+            element={isAuthenticated ? (
+              <Home
+                totalEffort={totalEffort}
+                setTotalEffort={setTotalEffort}
+                tasks={tasks}
+                setTasks={setTasks}
+                completedTasks={completedTasks}
+                setCompletedTasks={setCompletedTasks}
+              />
+            ) : <Navigate to="/login" />}
+          />
+          <Route
+            path="/shop"
+            element={isAuthenticated ? (
+              <Shop
+                totalEffort={totalEffort}
+                setTotalEffort={setTotalEffort}
+                rewards={rewards}
+                setRewards={setRewards}
+                completedTasks={completedTasks}
+                setCompletedTasks={setCompletedTasks}
+              />
+            ) : <Navigate to="/login" />}
+          />
+        </Route>
 
-
-        fetchData();
-    }, []);
-
-    return (
-        <Router>
-            <Routes>
-                {/* Public routes */}
-                <Route
-                    path="/login"
-                    element={isAuthenticated ? <Navigate to="/" /> : <Login setIsAuthenticated={setIsAuthenticated} />}
-                />
-                <Route
-                    path="/register"
-                    element={isAuthenticated ? <Navigate to="/" /> : <Register />}
-                />
-                {/* Private routes */}
-                <Route element={<Layout />}>
-                    <Route
-                        path="/"
-                        element={isAuthenticated ? (
-                            <Home
-                                totalEffort={totalEffort}
-                                setTotalEffort={setTotalEffort}
-                                tasks={tasks}
-                                setTasks={setTasks}
-                                completedTasks={completedTasks}
-                                setCompletedTasks={setCompletedTasks}
-                            />
-                        ) : (
-                            <Navigate to="/login" />
-                        )}
-                    />
-                    <Route
-                        path="/shop"
-                        element={isAuthenticated ? (
-                            <Shop
-                                totalEffort={totalEffort}
-                                setTotalEffort={setTotalEffort}
-                                rewards={rewards}
-                                setRewards={setRewards}
-                                completedTasks={completedTasks}
-                                setCompletedTasks={setCompletedTasks}
-                            />
-                        ) : (
-                            <Navigate to="/login" />
-                        )}
-                    />
-                </Route>
-                {/* Fallback to Home if route not found */}
-                <Route path="*" element={<Home />} />
-            </Routes>
-        </Router>
-    );
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+    </Router>
+  );
 }
 
 export default App;
