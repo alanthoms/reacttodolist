@@ -74,6 +74,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
     }
 
 
+
     function clearTask(index) {
         //add effort from deleted task
 
@@ -109,6 +110,48 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
 
 
     }
+
+async function completeTask(taskId, index) {
+  const token = localStorage.getItem("token");
+  const task = tasks[index]; // grab task locally
+
+  try {
+    const response = await fetch(`http://localhost:4000/tasks/${taskId}/complete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      }
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(error);
+    }
+
+    const data = await response.json();
+
+    // Update total effort (from backend, optional)
+    setTotalEffort(data.user.effort);
+
+    // Add task to completedTasks
+    addCompletedTask({ ...task, date: new Date().toLocaleString() });
+
+    // Remove task from main list if not repeatable, otherwise flash
+    if (!task.repeatable) {
+      setTasks(prev => prev.filter((_, i) => i !== index));
+    } else {
+      setTasks(prev => prev.map((t, i) => i === index ? { ...t, flashed: true } : t));
+      setTimeout(() => {
+        setTasks(prev => prev.map((t, i) => i === index ? { ...t, flashed: false } : t));
+      }, 500);
+    }
+
+  } catch (err) {
+    console.error("Error completing task:", err.message);
+  }
+}
+
 
 
     async function removeTask(index) {
@@ -216,7 +259,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
                         <button
                             className='delete-button'
                             //arrow function so it does not call function immediately
-                            onClick={() => clearTask(index)}>
+                            onClick={() => completeTask(taskElement.id, index)}>
                             ✅
                         </button>
 

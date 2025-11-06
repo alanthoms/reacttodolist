@@ -18,36 +18,41 @@ function App() {
 
   // Fetch tasks from backend on load
   useEffect(() => {
-    const fetchTasks = async () => {
-      if (!isAuthenticated) return;
+  const fetchData = async () => {
+    if (!isAuthenticated) return;
 
-      const token = localStorage.getItem("token");
-      try {
-        const res = await fetch("http://localhost:4000/tasks", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+    const token = localStorage.getItem("token");
 
-        if (res.status === 401 || res.status === 403) {
-          alert("Session expired. Please log in again.");
-          logout();
-          return;
-        }
+    try {
+      // Fetch active tasks
+      const tasksRes = await fetch("http://localhost:4000/tasks", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-        const data = await res.json();
-        // Separate completed and active tasks
-        setTasks(data.filter(task => !task.is_completed));
-        const completed = data.filter(task => task.is_completed);
-        setCompletedTasks(completed);
-        setTotalEffort(completed.reduce((sum, t) => sum + t.effort, 0));
-      } catch (err) {
-        console.error("Error fetching tasks:", err);
+      // Fetch completed tasks
+      const completedRes = await fetch("http://localhost:4000/completed-tasks", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (!tasksRes.ok || !completedRes.ok) {
+        throw new Error("Failed to fetch tasks or completed tasks");
       }
-    };
 
-    fetchTasks();
-  }, [isAuthenticated]);
+      const tasksData = await tasksRes.json();
+      const completedData = await completedRes.json();
+
+      setTasks(tasksData);
+      setCompletedTasks(completedData);
+
+
+    } catch (err) {
+      console.error("Error fetching tasks:", err);
+    }
+  };
+
+  fetchData();
+}, [isAuthenticated]);
+
 
   return (
     <Router>

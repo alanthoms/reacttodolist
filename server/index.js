@@ -199,6 +199,73 @@ app.get("/api/data", async (req, res) => {
     }
 });
 
+// Complete a task and add effort to user
+app.post('/tasks/:id/complete', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Start a transaction so both updates happen together
+    await pool.query('BEGIN');
+
+    // Get the task and its effort
+    const taskResult = await pool.query(
+      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
+      [id, req.user.userId]
+    );
+
+    if (taskResult.rows.length === 0) {
+      await pool.query('ROLLBACK');
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    const task = taskResult.rows[0];
+
+    // Insert into completed_tasks table
+    await pool.query(
+      "INSERT INTO completed_tasks (user_id, task_id, text, effort) VALUES ($1, $2, $3, $4)",
+      [req.user.userId, task.id, task.text, task.effort]
+    );
+
+    // Update user's total effort
+    const updatedUser = await pool.query(
+      "UPDATE users SET effort = effort + $1 WHERE id = $2 RETURNING id, username, effort",
+      [task.effort, req.user.userId]
+    );
+
+    // Delete task if not repeatable
+    if (!task.repeatable) {
+      await pool.query("DELETE FROM tasks WHERE id = $1 AND user_id = $2", [task.id, req.user.userId]);
+    }
+
+
+
+    await pool.query('COMMIT');
+
+    res.json({
+      message: "Task completed!",
+      completedTask: task,
+      user: updatedUser.rows[0]
+    });
+  } catch (err) {
+    await pool.query('ROLLBACK');
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to complete task" });
+  }
+});
+
+// Get completed tasks for a user
+app.get('/completed-tasks', authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "SELECT * FROM completed_tasks WHERE user_id = $1 ORDER BY id DESC",
+      [req.user.userId]
+    );
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to fetch completed tasks" });
+  }
+});
 
 
 app.listen(4000, () => {
