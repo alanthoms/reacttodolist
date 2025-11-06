@@ -158,17 +158,24 @@ app.get('/tasks/:id', authenticateToken, async (req, res) => {
 app.put('/tasks/:id', authenticateToken, async (req, res) => {
     try {
         const { id } = req.params;
-        const { text } = req.body;
+        const { text, effort, repeatable } = req.body; // <-- include all fields
+
         const updatedTask = await pool.query(
-            "UPDATE tasks SET text = $1 WHERE id = $2 AND user_id = $3 RETURNING *",
-            [text, id, req.user.userId]
+            "UPDATE tasks SET text = $1, effort = $2, repeatable = $3 WHERE id = $4 AND user_id = $5 RETURNING *",
+            [text, effort, repeatable, id, req.user.userId]
         );
-        res.json(updatedTask.rows[0]);
+
+        if (updatedTask.rows.length === 0) {
+            return res.status(404).json({ error: "Task not found" });
+        }
+
+        res.json(updatedTask.rows[0]); // <-- send updated task to frontend
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Failed to update task" });
     }
 });
+
 
 //delete a task
 app.delete('/tasks/:id', authenticateToken, async (req, res) => {

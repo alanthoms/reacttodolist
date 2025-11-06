@@ -211,7 +211,7 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
                         {taskElement.text} (Effort: {taskElement.effort}) {taskElement.repeatable && '🔁'}
                     </span>
 
-                    <EditTask taskElement={taskElement}   />
+                    <EditTask taskElement={taskElement} setTasks={setTasks} />
 
                         <button
                             className='delete-button'
