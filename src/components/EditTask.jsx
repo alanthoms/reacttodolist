@@ -27,8 +27,8 @@ const EditTask = ({ taskElement }) => {
         }
     }
 
-    
-      
+
+
     return (
         <>
             <button
@@ -47,11 +47,11 @@ const EditTask = ({ taskElement }) => {
                 aria-labelledby="exampleModalLabel"
             >
                 <div className="modal-dialog"
-                onClick={() => {
-                                        setTaskName(taskElement.text);
-                                        setEffort(taskElement.effort);
-                                        setIsRepeatable(taskElement.repeatable);
-                                    }}>
+                    onClick={() => {
+                        setTaskName(taskElement.text);
+                        setEffort(taskElement.effort);
+                        setIsRepeatable(taskElement.repeatable);
+                    }}>
                     <div className="modal-content">
 
                         <div className="modal-header">
@@ -62,53 +62,57 @@ const EditTask = ({ taskElement }) => {
                                 data-bs-dismiss="modal"
                                 aria-label="Close"
                                 onClick={() => {
-                                        setTaskName(taskElement.text);
-                                        setEffort(taskElement.effort);
-                                        setIsRepeatable(taskElement.repeatable);
-                                    }}
+                                    setTaskName(taskElement.text);
+                                    setEffort(taskElement.effort);
+                                    setIsRepeatable(taskElement.repeatable);
+                                }}
                             ></button>
                         </div>
 
                         <div className="modal-body">
                             <input type="text" className="form-control" placeholder="Task Name" value={taskName} onChange={(e) => setTaskName(e.target.value)} />
                             <input type="number" className="form-control mt-3" placeholder="Effort" value={effort} onChange={(e) => setEffort(e.target.value)} />
-                            <div className="form-check mt-3">
-                                <label className="form-check-label" htmlFor="repeatableCheck">
-                                    Repeatable
-                                </label>
-                                <input className="form-check-input" type="checkbox" id="repeatableCheck" />
-                            </div>
+                            <input
+                                className="form-check-input"
+                                type="checkbox"
+                                id={`repeatableCheck-${taskElement.id}`}
+                                checked={isRepeatable}
+                                onChange={() => setIsRepeatable(!isRepeatable)}
+                            />
+                            <label className="form-check-label" htmlFor={`repeatableCheck-${taskElement.id}`}>
+                                Repeatable
+                            </label>
                         </div>
 
-                            <div className="modal-footer">
-                                <button
-                                    type="button"
-                                    className="btn btn-primary"
-                                    data-bs-dismiss="modal"
-                                    onClick={e => updateTask(taskElement.id, taskName, effort, isRepeatable)}
-                        
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-danger"
-                                    data-bs-dismiss="modal"
-                                    onClick={() => {
-                                        setTaskName(taskElement.text);
-                                        setEffort(taskElement.effort);
-                                        setIsRepeatable(taskElement.repeatable);
-                                    }}
-                                >
-                                    Close
-                                </button>
-                            </div>
+                        <div className="modal-footer">
+                            <button
+                                type="button"
+                                className="btn btn-primary"
+                                data-bs-dismiss="modal"
+                                onClick={e => updateTask(taskElement.id, taskName, effort, isRepeatable)}
 
+                            >
+                                Edit
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-danger"
+                                data-bs-dismiss="modal"
+                                onClick={() => {
+                                    setTaskName(taskElement.text);
+                                    setEffort(taskElement.effort);
+                                    setIsRepeatable(taskElement.repeatable);
+                                }}
+                            >
+                                Close
+                            </button>
                         </div>
+
                     </div>
                 </div>
-            </>
-            );
+            </div>
+        </>
+    );
 };
 
-            export default EditTask;
+export default EditTask;
