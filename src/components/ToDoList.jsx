@@ -110,12 +110,26 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
     }
 
 
-    function removeTask(index) {
+    async function removeTask(index) {
         // dont add effort from deleted task
         //filter with arrow function, if index matches i, filtered out
         // we keep i that doesnt equal index
-        const updatedTasks = tasks.filter((_, i) => i !== index);
-        setTasks(updatedTasks);
+        //const updatedTasks = tasks.filter((_, i) => i !== index);
+        //setTasks(updatedTasks);
+        try{
+            const deleteTask = await fetch(`http://localhost:4000/tasks/${tasks[index].id}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!deleteTask.ok) {
+                const error = await deleteTask.text();
+                throw new Error(`Server error: ${deleteTask.status} - ${error}`);
+            }
+            const updatedTasks = tasks.filter((_, i) => i !== index);
+            setTasks(updatedTasks);
+        }   catch(err){
+            console.error(err.message);
+        }
     }
 
     function removeCompletedTask(index) {
