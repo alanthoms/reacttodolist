@@ -268,6 +268,23 @@ app.get('/completed-tasks', authenticateToken, async (req, res) => {
 });
 
 
+
+// Get current user info (e.g. total effort)
+app.get('/api/user', authenticateToken, async (req, res) => {
+  try {
+    const user = await pool.query(
+      "SELECT id, username, effort FROM users WHERE id = $1",
+      [req.user.userId]
+    );
+    res.json(user.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to fetch user info" });
+  }
+});
+
+
+//start server
 app.listen(4000, () => {
     console.log('Server is running on port 4000');
 });

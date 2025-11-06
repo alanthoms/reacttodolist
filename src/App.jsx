@@ -34,15 +34,22 @@ function App() {
         headers: { Authorization: `Bearer ${token}` }
       });
 
+      const userRes = await fetch("http://localhost:4000/api/user", {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
+
       if (!tasksRes.ok || !completedRes.ok) {
         throw new Error("Failed to fetch tasks or completed tasks");
       }
 
       const tasksData = await tasksRes.json();
       const completedData = await completedRes.json();
-
+      const userData = await userRes.json();
+        setUser(userData);
       setTasks(tasksData);
       setCompletedTasks(completedData);
+      setTotalEffort(userData.effort);
 
 
     } catch (err) {
