@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import EditTask from './EditTask';
 
 function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks, setCompletedTasks }) {
     //    const [tasks, setTasks] = useState([]);
@@ -209,6 +210,8 @@ function ToDoList({ totalEffort, setTotalEffort, tasks, setTasks, completedTasks
                     <li key={index} className={`task-item ${taskElement.flashed ? 'flashed' : ''}`} ><span className="text">
                         {taskElement.text} (Effort: {taskElement.effort}) {taskElement.repeatable && '🔁'}
                     </span>
+
+                    <EditTask taskElement={taskElement}   />
 
                         <button
                             className='delete-button'

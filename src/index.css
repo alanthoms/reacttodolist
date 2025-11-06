@@ -220,3 +220,12 @@ a{
 
 
 
+/* === Override Bootstrap heading styles === */
+h1, h2, h3, h4, h5, h6 {
+  color: white !important;            /* reset Bootstrap's grayish color */
+  font-weight: 700 !important;        /* restore bold headings */
+  line-height: normal !important;     /* reset Bootstrap's line-height tweaks */
+  margin-bottom: 0.5em !important;
+  font-family: inherit !important;    /* use your default font again */
+  text-transform: none !important;    /* in case Bootstrap uppercases something */
+}
