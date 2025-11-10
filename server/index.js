@@ -201,86 +201,104 @@ app.get("/api/data", async (req, res) => {
 
 // Complete a task and add effort to user
 app.post('/tasks/:id/complete', authenticateToken, async (req, res) => {
-  const { id } = req.params;
+    const { id } = req.params;
 
-  try {
-    // Start a transaction so both updates happen together
-    await pool.query('BEGIN');
+    try {
+        // Start a transaction so both updates happen together
+        await pool.query('BEGIN');
 
-    // Get the task and its effort
-    const taskResult = await pool.query(
-      "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
-    );
+        // Get the task and its effort
+        const taskResult = await pool.query(
+            "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
+            [id, req.user.userId]
+        );
 
-    if (taskResult.rows.length === 0) {
-      await pool.query('ROLLBACK');
-      return res.status(404).json({ error: "Task not found" });
+        if (taskResult.rows.length === 0) {
+            await pool.query('ROLLBACK');
+            return res.status(404).json({ error: "Task not found" });
+        }
+
+        const task = taskResult.rows[0];
+
+        // Insert into completed_tasks table and get that completed task
+        const completedTask = await pool.query(
+            "INSERT INTO completed_tasks (user_id, task_id, text, effort, completed_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
+            [req.user.userId, task.id, task.text, task.effort]
+        );
+
+
+
+        // Update user's total effort
+        const updatedUser = await pool.query(
+            "UPDATE users SET effort = effort + $1 WHERE id = $2 RETURNING id, username, effort",
+            [task.effort, req.user.userId]
+        );
+
+        // Delete task if not repeatable
+        if (!task.repeatable) {
+            await pool.query("DELETE FROM tasks WHERE id = $1 AND user_id = $2", [task.id, req.user.userId]);
+        }
+
+
+
+        await pool.query('COMMIT');
+
+        res.json({
+            message: "Task completed!",
+            //queryObject: completedTask.rows[0], // Return the completed task object
+            // completedTask is a QueryResult object; completedTask.rows[0] is the inserted row
+            completedTask: completedTask.rows[0],
+            user: updatedUser.rows[0]
+        });
+
+    } catch (err) {
+        await pool.query('ROLLBACK');
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to complete task" });
     }
-
-    const task = taskResult.rows[0];
-
-    // Insert into completed_tasks table
-    await pool.query(
-      "INSERT INTO completed_tasks (user_id, task_id, text, effort) VALUES ($1, $2, $3, $4)",
-      [req.user.userId, task.id, task.text, task.effort]
-    );
-
-    // Update user's total effort
-    const updatedUser = await pool.query(
-      "UPDATE users SET effort = effort + $1 WHERE id = $2 RETURNING id, username, effort",
-      [task.effort, req.user.userId]
-    );
-
-    // Delete task if not repeatable
-    if (!task.repeatable) {
-      await pool.query("DELETE FROM tasks WHERE id = $1 AND user_id = $2", [task.id, req.user.userId]);
-    }
-
-
-
-    await pool.query('COMMIT');
-
-    res.json({
-      message: "Task completed!",
-      completedTask: task,
-      user: updatedUser.rows[0]
-    });
-  } catch (err) {
-    await pool.query('ROLLBACK');
-    console.error(err.message);
-    res.status(500).json({ error: "Failed to complete task" });
-  }
 });
 
 // Get completed tasks for a user
 app.get('/completed-tasks', authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(
-      "SELECT * FROM completed_tasks WHERE user_id = $1 ORDER BY id DESC",
-      [req.user.userId]
-    );
-    res.json(result.rows);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Failed to fetch completed tasks" });
-  }
+    try {
+        const result = await pool.query(
+            "SELECT * FROM completed_tasks WHERE user_id = $1 ORDER BY id DESC",
+            [req.user.userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to fetch completed tasks" });
+    }
 });
 
 
 
 // Get current user info (e.g. total effort)
 app.get('/api/user', authenticateToken, async (req, res) => {
-  try {
-    const user = await pool.query(
-      "SELECT id, username, effort FROM users WHERE id = $1",
-      [req.user.userId]
-    );
-    res.json(user.rows[0]);
-  } catch (err) {
-    console.error(err.message);
-    res.status(500).json({ error: "Failed to fetch user info" });
-  }
+    try {
+        const user = await pool.query(
+            "SELECT id, username, effort FROM users WHERE id = $1",
+            [req.user.userId]
+        );
+        res.json(user.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to fetch user info" });
+    }
+});
+
+
+//remove completed task
+app.delete('/completed-tasks/:id', authenticateToken, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query("DELETE FROM completed_tasks WHERE id = $1 AND user_id = $2", [id, req.user.userId]);
+        res.json({ message: "Completed task deleted successfully" });
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to delete completed task" });
+    }
 });
 
 

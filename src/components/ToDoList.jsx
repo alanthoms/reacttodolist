@@ -130,12 +130,14 @@ async function completeTask(taskId, index) {
     }
 
     const data = await response.json();
+    console.log("Fetched completed tasks:", data);
 
     // Update total effort (from backend, optional)
     setTotalEffort(data.user.effort);
 
     // Add task to completedTasks
-    addCompletedTask({ ...task, date: new Date().toLocaleString() });
+    addCompletedTask(data.completedTask);
+
 
     // Remove task from main list if not repeatable, otherwise flash
     if (!task.repeatable) {
@@ -176,12 +178,22 @@ async function completeTask(taskId, index) {
         }
     }
 
-    function removeCompletedTask(index) {
-        // dont add effort from deleted task
-        //filter with arrow function, if index matches i, filtered out
-        // we keep i that doesnt equal index
-        const updatedCompletedTasks = completedTasks.filter((_, i) => i !== index);
-        setCompletedTasks(updatedCompletedTasks);
+    async function removeCompletedTask(index) {
+        const token = localStorage.getItem("token");
+        try {
+            const deleteTask = await fetch(`http://localhost:4000/completed-tasks/${completedTasks[index].id}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            if (!deleteTask.ok) {
+                const error = await deleteTask.text();
+                throw new Error(`Server error: ${deleteTask.status} - ${error}`);
+            }
+            const updatedCompletedTasks = completedTasks.filter((_, i) => i !== index);
+            setCompletedTasks(updatedCompletedTasks);
+        } catch (err) {
+            console.error(err.message);
+        }
     }
 
     function moveTaskUp(index) {
@@ -206,6 +218,8 @@ async function completeTask(taskId, index) {
         }
 
     }
+
+
     return (
         <div className="to-do-list">
             <h1>Tasks</h1>
@@ -297,7 +311,7 @@ async function completeTask(taskId, index) {
                         <li key={index} className={`task-item ${ctaskElement.flashed ? 'flashed' : ''}`} ><span className="text">
                             {ctaskElement.text} (Effort: {ctaskElement.effort}) {ctaskElement.repeatable && '🔁'}
                         </span>
-                            <span>{ctaskElement.date}</span>
+                            <span>{ctaskElement.date}</span><span>{new Date(ctaskElement.completed_at).toLocaleString()}</span>
                             <button
                                 className='remove-completed-button'
                                 //arrow function so it does not call function immediately
@@ -310,6 +324,7 @@ async function completeTask(taskId, index) {
                 </ol>
             </div>
         </div>
-    );
-}
+    
+    )};
+
 export default ToDoList;
