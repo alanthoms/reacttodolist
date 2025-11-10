@@ -302,6 +302,115 @@ app.delete('/completed-tasks/:id', authenticateToken, async (req, res) => {
 });
 
 
+
+//
+//REWARD ROUTES
+//
+
+// Get all rewards
+app.get('/rewards', authenticateToken, async (req, res) => {
+    try {
+        const result = await pool.query(
+            "SELECT * FROM rewards WHERE user_id = $1 ORDER BY id DESC",
+            [req.user.userId]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to fetch rewards" });
+    }
+});
+
+// Add a reward
+app.post('/rewards', authenticateToken, async (req, res) => {
+    const { text, effort, repeatable } = req.body;
+    try {
+        const result = await pool.query(
+            "INSERT INTO rewards (user_id, text, effort, repeatable) VALUES ($1, $2, $3, $4) RETURNING *",
+            [req.user.userId, text, effort, repeatable]
+        );
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err.message);
+        res.status(500).json({ error: "Failed to add reward" });
+    }
+});
+
+// Purchase a reward
+app.post('/rewards/:id/purchase', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get reward
+    const rewardResult = await pool.query(
+      "SELECT * FROM rewards WHERE id = $1 AND user_id = $2",
+      [id, req.user.userId]
+    );
+
+    if (rewardResult.rows.length === 0) {
+      return res.status(404).json({ error: "Reward not found" });
+    }
+
+    const reward = rewardResult.rows[0];
+
+    // Check if user has enough points
+    const userResult = await pool.query(
+      "SELECT effort FROM users WHERE id = $1",
+      [req.user.userId]
+    );
+    const totalEffort = userResult.rows[0].effort;
+
+    if (totalEffort < reward.effort) {
+      return res.status(400).json({ error: "Not enough points to purchase" });
+    }
+
+    // Deduct points
+    await pool.query(
+      "UPDATE users SET effort = effort - $1 WHERE id = $2",
+      [reward.effort, req.user.userId]
+    );
+
+    // Delete reward if not repeatable
+    if (!reward.repeatable) {
+      await pool.query(
+        "DELETE FROM rewards WHERE id = $1 AND user_id = $2",
+        [id, req.user.userId]
+      );
+    }
+
+    res.json({ message: "Reward purchased successfully" });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to purchase reward" });
+  }
+});
+
+// Remove a reward
+app.delete('/rewards/:id', authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const result = await pool.query(
+      "DELETE FROM rewards WHERE id = $1 AND user_id = $2 RETURNING *",
+      [id, req.user.userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Reward not found" });
+    }
+
+    res.json({ message: "Reward removed successfully" });
+
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to remove reward" });
+  }
+});
+
+
+
+
 //start server
 app.listen(4000, () => {
     console.log('Server is running on port 4000');

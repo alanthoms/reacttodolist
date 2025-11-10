@@ -33,6 +33,11 @@ function App() {
       const completedRes = await fetch("http://localhost:4000/completed-tasks", {
         headers: { Authorization: `Bearer ${token}` }
       });
+      const rewardsRes = await fetch("http://localhost:4000/rewards", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const rewardsData = await rewardsRes.json();
+      setRewards(rewardsData);
 
       const userRes = await fetch("http://localhost:4000/api/user", {
   headers: { Authorization: `Bearer ${token}` }

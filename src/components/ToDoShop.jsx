@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 
 function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedTasks, setCompletedTasks }) {
+  const token = localStorage.getItem('token');
+
   const [newReward, setNewReward] = useState("");
   const [newEffort, setNewEffort] = useState('');
   const [isRepeatable, setIsRepeatable] = useState(false);
 
+
+  //Handle input change
   function handleInputChange(event) {
     setNewReward(event.target.value);
   }
@@ -13,53 +17,91 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
     setNewEffort(event.target.value);
   }
 
-  function addReward() {
+
+  // Add reward to backend
+  async function addReward() {
     const effortValue = parseInt(newEffort, 10);
-    if (!isNaN(effortValue) && effortValue >= 0) {
-      setRewards(r => [
-        ...r,
-        { text: newReward, effort: effortValue, repeatable: isRepeatable, flashed: false }
-      ]);
+    if (isNaN(effortValue) || effortValue < 0) {
+      alert('Please enter a valid non-negative number for effort.');
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:4000/rewards", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ text: newReward, effort: effortValue, repeatable: isRepeatable })
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const rewardFromDB = await res.json();
+      setRewards(r => [...r, rewardFromDB]);
       setNewReward('');
       setNewEffort('');
-    } else {
-      alert('Please enter a valid non-negative number for effort.');
+    } catch (err) {
+      console.error(err.message);
     }
   }
-
-  function purchaseReward(index) {
+  // Purchase reward (subtracts totalEffort)
+  async function purchaseReward(index) {
     const reward = rewards[index];
-    if (totalEffort >= reward.effort) {
+    if (totalEffort < reward.effort) {
+      alert("Not enough points to purchase this reward");
+      return;
+    }
+
+    try {
+      const res = await fetch(`http://localhost:4000/rewards/${reward.id}/purchase`, {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+
+      // Update total effort
       setTotalEffort(prev => prev - reward.effort);
 
-      // Flash briefly
+      // Flash reward
       const updatedRewards = [...rewards];
       updatedRewards[index].flashed = true;
       setRewards(updatedRewards);
 
       setTimeout(() => {
         if (!reward.repeatable) {
-          setRewards(rewards.filter((_, i) => i !== index));
+          setRewards(prev => prev.filter((_, i) => i !== index));
         } else {
           const resetFlash = [...updatedRewards];
           resetFlash[index].flashed = false;
           setRewards(resetFlash);
         }
       }, 500);
-    } else {
-      alert('You do not have enough points to purchase');
+
+    } catch (err) {
+      console.error(err.message);
     }
   }
 
-  function removeReward(index) {
-    setRewards(rewards.filter((_, i) => i !== index));
+  // Remove reward (does not affect totalEffort)
+  async function removeReward(index) {
+    const reward = rewards[index];
+    try {
+      const res = await fetch(`http://localhost:4000/rewards/${reward.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error(await res.text());
+
+      setRewards(prev => prev.filter((_, i) => i !== index));
+    } catch (err) {
+      console.error(err.message);
+    }
   }
+
 
   return (
     <div className="to-do-list">
-        <h1>Shop</h1>
+      <h1>Shop</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
-      <form className = "task-form"
+      <form className="task-form"
         onSubmit={(e) => {
           e.preventDefault();
           addReward();
@@ -103,12 +145,8 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
             <span className="text">
               {reward.text} (Effort: {reward.effort}) {reward.repeatable && '🔁'}
             </span>
-            <button className="delete-button" onClick={() => purchaseReward(index)}>
-              ✅
-            </button>
-            <button className="remove-button" onClick={() => removeReward(index)}>
-              ⛔️
-            </button>
+            <button className="purchase-button" onClick={() => purchaseReward(index)}>✅ Buy</button>
+            <button className="remove-button" onClick={() => removeReward(index)}>⛔️ Remove</button>
           </li>
         ))}
       </ol>
