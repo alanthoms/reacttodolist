@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import EditReward from "./EditReward";
 function ToDoShop({
   totalEffort,
   setTotalEffort,
@@ -9,6 +9,9 @@ function ToDoShop({
   setCompletedTasks,
 }) {
   const token = localStorage.getItem("token");
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editingReward, setEditingReward] = useState(null);
 
   const [newReward, setNewReward] = useState("");
   const [newEffort, setNewEffort] = useState("");
@@ -112,6 +115,7 @@ function ToDoShop({
 
   return (
     <div className="to-do-list">
+      <div className="text-red-500">Tailwind works!</div>
       <h1>Shop</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
       <form
@@ -152,6 +156,14 @@ function ToDoShop({
         </button>
         <button type="submit">Add</button>
       </form>
+      {isEditOpen && editingReward && (
+        <EditReward
+          rewardElement={editingReward}
+          setRewards={setRewards}
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+        />
+      )}
 
       <ol>
         {rewards.map((reward, index) => (
@@ -163,6 +175,15 @@ function ToDoShop({
               {reward.text} (Effort: {reward.effort}){" "}
               {reward.repeatable && "🔁"}
             </span>
+            <button
+              className="edit-button"
+              onClick={() => {
+                setEditingReward(reward);
+                setIsEditOpen(true);
+              }}
+            >
+              ✏️ Edit
+            </button>
             <button
               className="purchase-button"
               onClick={() => purchaseReward(index)}

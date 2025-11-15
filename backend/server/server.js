@@ -419,6 +419,28 @@ app.delete("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Update a reward
+app.put("/rewards/:id", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+  const { text, effort, repeatable } = req.body;
+
+  try {
+    const updatedReward = await pool.query(
+      "UPDATE rewards SET text = $1, effort = $2, repeatable = $3 WHERE id = $4 AND user_id = $5 RETURNING *",
+      [text, effort, repeatable, id, req.user.userId]
+    );
+
+    if (updatedReward.rows.length === 0) {
+      return res.status(404).json({ error: "Reward not found" });
+    }
+
+    res.json(updatedReward.rows[0]);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to update reward" });
+  }
+});
+
 //start server
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
