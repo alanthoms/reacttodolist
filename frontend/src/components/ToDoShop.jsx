@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedTasks, setCompletedTasks }) {
-  const token = localStorage.getItem('token');
+function ToDoShop({
+  totalEffort,
+  setTotalEffort,
+  rewards,
+  setRewards,
+  completedTasks,
+  setCompletedTasks,
+}) {
+  const token = localStorage.getItem("token");
 
   const [newReward, setNewReward] = useState("");
-  const [newEffort, setNewEffort] = useState('');
+  const [newEffort, setNewEffort] = useState("");
   const [isRepeatable, setIsRepeatable] = useState(false);
-
 
   //Handle input change
   function handleInputChange(event) {
@@ -17,26 +23,32 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
     setNewEffort(event.target.value);
   }
 
-
   // Add reward to backend
   async function addReward() {
     const effortValue = parseInt(newEffort, 10);
     if (isNaN(effortValue) || effortValue < 0) {
-      alert('Please enter a valid non-negative number for effort.');
+      alert("Please enter a valid non-negative number for effort.");
       return;
     }
 
     try {
       const res = await fetch("http://localhost:4000/rewards", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
-        body: JSON.stringify({ text: newReward, effort: effortValue, repeatable: isRepeatable })
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          text: newReward,
+          effort: effortValue,
+          repeatable: isRepeatable,
+        }),
       });
       if (!res.ok) throw new Error(await res.text());
       const rewardFromDB = await res.json();
-      setRewards(r => [...r, rewardFromDB]);
-      setNewReward('');
-      setNewEffort('');
+      setRewards((r) => [...r, rewardFromDB]);
+      setNewReward("");
+      setNewEffort("");
     } catch (err) {
       console.error(err.message);
     }
@@ -50,15 +62,18 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
     }
 
     try {
-      const res = await fetch(`http://localhost:4000/rewards/${reward.id}/purchase`, {
-        method: "POST",
-        headers: { "Authorization": `Bearer ${token}` }
-      });
+      const res = await fetch(
+        `http://localhost:4000/rewards/${reward.id}/purchase`,
+        {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       if (!res.ok) throw new Error(await res.text());
       const data = await res.json();
 
       // Update total effort
-      setTotalEffort(prev => prev - reward.effort);
+      setTotalEffort((prev) => prev - reward.effort);
 
       // Flash reward
       const updatedRewards = [...rewards];
@@ -67,14 +82,13 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
 
       setTimeout(() => {
         if (!reward.repeatable) {
-          setRewards(prev => prev.filter((_, i) => i !== index));
+          setRewards((prev) => prev.filter((_, i) => i !== index));
         } else {
           const resetFlash = [...updatedRewards];
           resetFlash[index].flashed = false;
           setRewards(resetFlash);
         }
       }, 500);
-
     } catch (err) {
       console.error(err.message);
     }
@@ -86,22 +100,22 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
     try {
       const res = await fetch(`http://localhost:4000/rewards/${reward.id}`, {
         method: "DELETE",
-        headers: { "Authorization": `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error(await res.text());
 
-      setRewards(prev => prev.filter((_, i) => i !== index));
+      setRewards((prev) => prev.filter((_, i) => i !== index));
     } catch (err) {
       console.error(err.message);
     }
   }
 
-
   return (
     <div className="to-do-list">
       <h1>Shop</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
-      <form className="task-form"
+      <form
+        className="task-form"
         onSubmit={(e) => {
           e.preventDefault();
           addReward();
@@ -126,12 +140,12 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
           type="button"
           onClick={() => setIsRepeatable(!isRepeatable)}
           style={{
-            fontSize: '18px',
-            padding: '4px 8px',
-            background: isRepeatable ? 'aquamarine' : 'grey',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer'
+            fontSize: "18px",
+            padding: "4px 8px",
+            background: isRepeatable ? "aquamarine" : "grey",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+            cursor: "pointer",
           }}
         >
           🔁
@@ -141,12 +155,26 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards, completedT
 
       <ol>
         {rewards.map((reward, index) => (
-          <li key={index} className={`task-item ${reward.flashed ? 'flashed' : ''}`}>
+          <li
+            key={index}
+            className={`task-item ${reward.flashed ? "flashed" : ""}`}
+          >
             <span className="text">
-              {reward.text} (Effort: {reward.effort}) {reward.repeatable && '🔁'}
+              {reward.text} (Effort: {reward.effort}){" "}
+              {reward.repeatable && "🔁"}
             </span>
-            <button className="purchase-button" onClick={() => purchaseReward(index)}>✅ Buy</button>
-            <button className="remove-button" onClick={() => removeReward(index)}>⛔️ Remove</button>
+            <button
+              className="purchase-button"
+              onClick={() => purchaseReward(index)}
+            >
+              ✅ Buy
+            </button>
+            <button
+              className="remove-button"
+              onClick={() => removeReward(index)}
+            >
+              ⛔️ Remove
+            </button>
           </li>
         ))}
       </ol>

@@ -20,7 +20,9 @@ const Login = ({ setIsAuthenticated }) => {
 
       if (USE_CAPTCHA) {
         await window.grecaptcha.ready(async () => {
-          captchaToken = await window.grecaptcha.execute(siteKey, { action: "login" });
+          captchaToken = await window.grecaptcha.execute(siteKey, {
+            action: "login",
+          });
         });
       }
 
@@ -30,7 +32,7 @@ const Login = ({ setIsAuthenticated }) => {
         body: JSON.stringify({
           email,
           password,
-          ...(USE_CAPTCHA && { captchaToken }) // only include token if using CAPTCHA
+          ...(USE_CAPTCHA && { captchaToken }), // only include token if using CAPTCHA
         }),
       });
 
@@ -41,7 +43,7 @@ const Login = ({ setIsAuthenticated }) => {
       localStorage.setItem("user", JSON.stringify(data.user));
 
       alert("Login Successful!");
-      setIsAuthenticated(true);  // instantly update App's state
+      setIsAuthenticated(true); // instantly update App's state
       navigate("/Home");
     } catch (err) {
       console.error("Login error:", err.message);
