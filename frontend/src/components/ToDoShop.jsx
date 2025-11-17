@@ -59,7 +59,7 @@ function ToDoShop({
       console.error(err.message);
     }
   }
-  // Purchase reward (subtracts totalEffort)
+
   async function purchaseReward(index) {
     const reward = rewards[index];
     if (totalEffort < reward.effort) {
@@ -76,35 +76,23 @@ function ToDoShop({
         }
       );
       if (!res.ok) throw new Error(await res.text());
-      const data = await res.json();
+      await res.json();
 
       // Update total effort
       setTotalEffort((prev) => prev - reward.effort);
 
-      // Flash reward
-      const updatedRewards = [...rewards];
-      updatedRewards[index].flashed = true;
-      setRewards(updatedRewards);
+      // Only remove reward if it is NOT repeatable
+      if (!reward.repeatable) {
+        setRewards((prev) => prev.filter((_, i) => i !== index));
+      }
 
-      setPurchasedRewards((prev) => [
-        ...prev,
-        {
-          ...reward,
-          purchased_at: new Date().toISOString(),
-        },
-      ]);
-
-      // Remove reward after flash if not repeatable
-
-      setTimeout(() => {
-        if (!reward.repeatable) {
-          setRewards((prev) => prev.filter((_, i) => i !== index));
-        } else {
-          const resetFlash = [...updatedRewards];
-          resetFlash[index].flashed = false;
-          setRewards(resetFlash);
-        }
-      }, 500);
+      // Refresh purchased rewards from backend
+      const purchasedRes = await fetch(
+        "http://localhost:4000/purchased-rewards",
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      const purchasedData = await purchasedRes.json();
+      setPurchasedRewards(purchasedData);
     } catch (err) {
       console.error(err.message);
     }
@@ -228,8 +216,7 @@ function ToDoShop({
           {purchasedRewards.map((reward, index) => (
             <li key={index} className="task-item">
               <span className="text">
-                {reward.text} (Cost: {reward.effort}){" "}
-                {reward.repeatable && "🔁"}
+                {reward.text} (Cost: {reward.effort_spent}){" "}
               </span>
               <span>
                 Purchased at: {new Date(reward.purchased_at).toLocaleString()}

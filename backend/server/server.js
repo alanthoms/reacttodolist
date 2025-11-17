@@ -426,6 +426,76 @@ app.delete("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Get the reward
+    const rewardResult = await pool.query(
+      "SELECT * FROM rewards WHERE id = $1 AND user_id = $2",
+      [id, req.user.userId]
+    );
+
+    if (rewardResult.rows.length === 0)
+      return res.status(404).json({ error: "Reward not found" });
+
+    const reward = rewardResult.rows[0];
+
+    // Check if user has enough points
+    const userResult = await pool.query(
+      "SELECT effort FROM users WHERE id = $1",
+      [req.user.userId]
+    );
+    const totalEffort = userResult.rows[0].effort;
+
+    if (totalEffort < reward.effort)
+      return res.status(400).json({ error: "Not enough points to purchase" });
+
+    // Deduct points
+    await pool.query("UPDATE users SET effort = effort - $1 WHERE id = $2", [
+      reward.effort,
+      req.user.userId,
+    ]);
+
+    // Insert into purchased_rewards WITHOUT repeatable
+    await pool.query(
+      `INSERT INTO purchased_rewards (user_id, reward_id, text, effort_spent, purchased_at)
+       VALUES ($1, $2, $3, $4, NOW())`,
+      [req.user.userId, reward.id, reward.text, reward.effort]
+    );
+
+    // Only delete the reward if it is NOT repeatable
+    if (!reward.repeatable) {
+      await pool.query("DELETE FROM rewards WHERE id = $1 AND user_id = $2", [
+        id,
+        req.user.userId,
+      ]);
+    }
+
+    res.json({ message: "Reward purchased successfully" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to purchase reward" });
+  }
+});
+// Get purchased rewards for a user
+app.get("/purchased-rewards", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, reward_id, text, effort_spent, purchased_at
+       FROM purchased_rewards
+       WHERE user_id = $1
+       ORDER BY purchased_at DESC`,
+      [req.user.userId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching purchased rewards:", err.message);
+    res.status(500).json({ error: "Failed to fetch purchased rewards" });
+  }
+});
+
 // Update a reward
 app.put("/rewards/:id", authenticateToken, async (req, res) => {
   const { id } = req.params;
@@ -443,26 +513,8 @@ app.put("/rewards/:id", authenticateToken, async (req, res) => {
 
     res.json(updatedReward.rows[0]);
   } catch (err) {
-    console.error(err.message);
+    console.error("Update reward error:", err.message);
     res.status(500).json({ error: "Failed to update reward" });
-  }
-});
-
-// Get purchased rewards
-app.get("/purchased-rewards", authenticateToken, async (req, res) => {
-  try {
-    const result = await pool.query(
-      `SELECT id, reward_id, text, effort_spent, purchased_at
-       FROM purchased_rewards
-       WHERE user_id = $1
-       ORDER BY purchased_at DESC`,
-      [req.user.userId]
-    );
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error("Error fetching purchased rewards:", err.message);
-    res.status(500).json({ error: "Failed to fetch purchased rewards" });
   }
 });
 
