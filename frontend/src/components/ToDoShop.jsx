@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import EditReward from "./EditReward";
-function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }) {
+function ToDoShop({
+  totalEffort,
+  setTotalEffort,
+  rewards,
+  setRewards,
+  purchasedRewards,
+  setPurchasedRewards,
+}) {
   const token = localStorage.getItem("token");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -11,7 +18,6 @@ function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }) {
   const [isRepeatable, setIsRepeatable] = useState(false);
 
   //purchased rewards
-  const [purchasedRewards, setPurchasedRewards] = useState([]);
   const [showPurchased, setShowPurchased] = useState(false);
 
   //Handle input change

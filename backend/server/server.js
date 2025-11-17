@@ -383,6 +383,13 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
       req.user.userId,
     ]);
 
+    // Insert into purchased_rewards
+    await pool.query(
+      `INSERT INTO purchased_rewards (user_id, reward_id, text, effort_spent, purchased_at)
+   VALUES ($1, $2, $3, $4, NOW())`,
+      [req.user.userId, reward.id, reward.text, reward.effort]
+    );
+
     // Delete reward if not repeatable
     if (!reward.repeatable) {
       await pool.query("DELETE FROM rewards WHERE id = $1 AND user_id = $2", [
