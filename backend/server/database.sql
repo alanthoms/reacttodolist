@@ -55,3 +55,15 @@ CREATE TABLE effort_log (
 
 CREATE INDEX idx_effort_log_user_id ON effort_log(user_id);
 CREATE INDEX idx_effort_log_logged_at ON effort_log(logged_at);
+
+CREATE TABLE purchased_rewards (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  reward_id INTEGER REFERENCES rewards(id) ON DELETE CASCADE,
+  text VARCHAR(255) NOT NULL,
+  effort_spent INTEGER NOT NULL CHECK (effort_spent >= 0),
+  purchased_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE INDEX idx_purchased_rewards_user_id ON purchased_rewards(user_id);
+CREATE INDEX idx_purchased_rewards_purchased_at ON purchased_rewards(purchased_at);

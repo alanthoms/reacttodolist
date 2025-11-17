@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import EditReward from "./EditReward";
-function ToDoShop({
-  totalEffort,
-  setTotalEffort,
-  rewards,
-  setRewards,
-  completedTasks,
-  setCompletedTasks,
-}) {
+function ToDoShop({ totalEffort, setTotalEffort, rewards, setRewards }) {
   const token = localStorage.getItem("token");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -16,6 +9,10 @@ function ToDoShop({
   const [newReward, setNewReward] = useState("");
   const [newEffort, setNewEffort] = useState("");
   const [isRepeatable, setIsRepeatable] = useState(false);
+
+  //purchased rewards
+  const [purchasedRewards, setPurchasedRewards] = useState([]);
+  const [showPurchased, setShowPurchased] = useState(false);
 
   //Handle input change
   function handleInputChange(event) {
@@ -82,6 +79,16 @@ function ToDoShop({
       const updatedRewards = [...rewards];
       updatedRewards[index].flashed = true;
       setRewards(updatedRewards);
+
+      setPurchasedRewards((prev) => [
+        ...prev,
+        {
+          ...reward,
+          purchased_at: new Date().toISOString(),
+        },
+      ]);
+
+      // Remove reward after flash if not repeatable
 
       setTimeout(() => {
         if (!reward.repeatable) {
@@ -156,6 +163,7 @@ function ToDoShop({
         </button>
         <button type="submit">Add</button>
       </form>
+
       {isEditOpen && editingReward && (
         <EditReward
           rewardElement={editingReward}
@@ -199,6 +207,31 @@ function ToDoShop({
           </li>
         ))}
       </ol>
+      <button
+        className="toggle-purchased-button"
+        onClick={() => setShowPurchased(!showPurchased)}
+      >
+        {showPurchased ? "Hide Purchased Rewards" : "Show Purchased Rewards"}
+      </button>
+
+      <div
+        className={`purchased-section ${showPurchased ? "visible" : "hidden"}`}
+      >
+        <h2>Purchased Rewards</h2>
+        <ol>
+          {purchasedRewards.map((reward, index) => (
+            <li key={index} className="task-item">
+              <span className="text">
+                {reward.text} (Cost: {reward.effort}){" "}
+                {reward.repeatable && "🔁"}
+              </span>
+              <span>
+                Purchased at: {new Date(reward.purchased_at).toLocaleString()}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }

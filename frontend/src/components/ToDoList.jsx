@@ -14,7 +14,6 @@ function ToDoList({
   const token = localStorage.getItem("token");
   const [newTask, setNewTask] = useState("");
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
   //for tailwind modal
   const [editingTask, setEditingTask] = useState(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -26,12 +25,6 @@ function ToDoList({
   const [showCompleted, setShowCompleted] = useState(false);
 
   const [isRepeatable, setIsRepeatable] = useState(false);
-
-  // Load from localStorage once
-
-  function handleRepeatableChange(event) {
-    setIsRepeatable(event.target.checked);
-  }
 
   //event handler, function uses setter for newTask to access event parameter target's value
   // enables visual change of textbox value
@@ -88,7 +81,7 @@ function ToDoList({
   function addCompletedTask(task) {
     setCompletedTasks((ct) => [...ct, task]);
   }
-
+  /** 
   function clearTask(index) {
     //add effort from deleted task
 
@@ -121,6 +114,7 @@ function ToDoList({
 
     addCompletedTask(completedTask);
   }
+    */
 
   async function completeTask(taskId, index) {
     const token = localStorage.getItem("token");

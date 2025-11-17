@@ -20,6 +20,7 @@ function App() {
   const [completedTasks, setCompletedTasks] = useState([]);
   const [totalEffort, setTotalEffort] = useState(0);
   const [rewards, setRewards] = useState([]);
+  const [purchasedRewards, setPurchasedRewards] = useState([]);
 
   // Fetch tasks from backend on load
   useEffect(() => {
@@ -31,14 +32,14 @@ function App() {
 
       try {
         // Fetch all endpoints in parallel
-        const [tasksRes, completedRes, rewardsRes, userRes] = await Promise.all(
-          [
+        const [tasksRes, completedRes, rewardsRes, userRes, purchasedRes] =
+          await Promise.all([
             fetch("http://localhost:4000/tasks", { headers }),
             fetch("http://localhost:4000/completed-tasks", { headers }),
             fetch("http://localhost:4000/rewards", { headers }),
             fetch("http://localhost:4000/api/user", { headers }),
-          ]
-        );
+            fetch("http://localhost:4000/purchased-rewards", { headers }),
+          ]);
 
         // Check if all responses are ok
         if (!tasksRes.ok || !completedRes.ok || !rewardsRes.ok || !userRes.ok) {
@@ -46,12 +47,13 @@ function App() {
         }
 
         // Parse all responses in parallel
-        const [tasksData, completedData, rewardsData, userData] =
+        const [tasksData, completedData, rewardsData, userData, purchasedData] =
           await Promise.all([
             tasksRes.json(),
             completedRes.json(),
             rewardsRes.json(),
             userRes.json(),
+            purchasedRes.json(),
           ]);
 
         // Update state
@@ -60,6 +62,7 @@ function App() {
         setRewards(rewardsData);
         setUser(userData);
         setTotalEffort(userData.effort);
+        setPurchasedRewards(purchasedData);
       } catch (err) {
         console.error("Error fetching data:", err);
       }
@@ -117,6 +120,8 @@ function App() {
                   setRewards={setRewards}
                   completedTasks={completedTasks}
                   setCompletedTasks={setCompletedTasks}
+                  purchasedRewards={purchasedRewards}
+                  setPurchasedRewards={setPurchasedRewards}
                 />
               ) : (
                 <Navigate to="/login" />

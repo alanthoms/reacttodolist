@@ -441,6 +441,24 @@ app.put("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+// Get purchased rewards
+app.get("/purchased-rewards", authenticateToken, async (req, res) => {
+  try {
+    const result = await pool.query(
+      `SELECT id, reward_id, text, effort_spent, purchased_at
+       FROM purchased_rewards
+       WHERE user_id = $1
+       ORDER BY purchased_at DESC`,
+      [req.user.userId]
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error fetching purchased rewards:", err.message);
+    res.status(500).json({ error: "Failed to fetch purchased rewards" });
+  }
+});
+
 //start server
 app.listen(4000, () => {
   console.log("Server is running on port 4000");

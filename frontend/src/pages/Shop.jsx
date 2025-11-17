@@ -7,6 +7,8 @@ export function Shop({
   setRewards,
   completedTasks,
   setCompletedTasks,
+  purchasedRewards,
+  setPurchasedRewards,
 }) {
   return (
     <>
@@ -17,6 +19,8 @@ export function Shop({
         setRewards={setRewards}
         completedTasks={completedTasks}
         setCompletedTasks={setCompletedTasks}
+        purchasedRewards={purchasedRewards}
+        setPurchasedRewards={setPurchasedRewards}
       />
     </>
   );
