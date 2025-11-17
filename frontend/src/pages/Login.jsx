@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { LockClosedIcon, UserIcon } from "@heroicons/react/24/solid";
 
 const siteKey = "6Ld3RScrAAAAAP-O9BROgXndT7EUh-OIkjxNLrc8";
 
@@ -52,31 +53,55 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <h2 className="login-title">Login</h2>
-        {error && <p className="error-message">{error}</p>}
-        <form onSubmit={handleLogin} className="login-form">
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          <button type="submit" className="login-button">
+    <div className="flex justify-center items-center min-h-screen bg-[url('/your-background.jpg')] bg-cover bg-center">
+      <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-xl shadow-lg w-full max-w-md">
+        <h2 className="text-3xl font-bold mb-6 text-center text-white tracking-wide">
+          Login
+        </h2>
+
+        {error && <p className="text-red-400 mb-4 text-center">{error}</p>}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          {/* Email */}
+          <div className="flex items-center border border-white/30 rounded-md px-3 py-2 bg-transparent">
+            <UserIcon className="w-5 h-5 text-white/80" />
+            <input
+              type="email"
+              placeholder="Email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="ml-2 w-full outline-none bg-transparent placeholder-white text-white"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="flex items-center border border-white/30 rounded-md px-3 py-2 bg-transparent">
+            <LockClosedIcon className="w-5 h-5 text-white/80" />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="ml-2 w-full outline-none bg-transparent placeholder-white text-white"
+            />
+          </div>
+
+          {/* Login Button */}
+          <button
+            type="submit"
+            className="w-full bg-white/20 text-blue-500 font-semibold py-2 rounded-md hover:bg-white/30 transition-colors"
+          >
             Login
           </button>
         </form>
-        <p className="register-link">
-          Don't have an account? <Link to="/register">Register here</Link>
+
+        <p className="mt-4 text-center text-white/70">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-indigo-300 hover:underline">
+            Register here
+          </Link>
         </p>
       </div>
     </div>

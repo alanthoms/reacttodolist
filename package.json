@@ -14,5 +14,10 @@
   "type": "commonjs",
   "devDependencies": {
     "concurrently": "^9.2.1"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "@mdi/js": "^7.4.47",
+    "@mdi/react": "^1.6.1"
   }
 }
