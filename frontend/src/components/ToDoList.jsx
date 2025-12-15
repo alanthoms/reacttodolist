@@ -2,6 +2,16 @@ import React, { useState } from "react";
 import EditTask from "./EditTask";
 import Modal from "./Modal";
 
+import Icon from "@mdi/react";
+
+import { mdiPencilOutline } from "@mdi/js";
+import { mdiCheck } from "@mdi/js";
+
+import { mdiMenuUp } from "@mdi/js";
+import { mdiMenuDown } from "@mdi/js";
+
+import { mdiDelete } from "@mdi/js";
+
 function ToDoList({
   totalEffort,
   setTotalEffort,
@@ -306,7 +316,7 @@ function ToDoList({
                 setIsEditOpen(true);
               }}
             >
-              ✏️ Edit
+              <Icon path={mdiPencilOutline} size={1} />
             </button>
 
             <button
@@ -314,7 +324,7 @@ function ToDoList({
               //arrow function so it does not call function immediately
               onClick={() => completeTask(taskElement.id, index)}
             >
-              ✅
+              <Icon path={mdiCheck} size={1} />
             </button>
 
             <button
@@ -322,21 +332,21 @@ function ToDoList({
               //arrow function so it does not call function immediately
               onClick={() => moveTaskUp(index)}
             >
-              ⬆️
+              <Icon path={mdiMenuUp} size={1} />
             </button>
             <button
               className="move-button"
               //arrow function so it does not call function immediately
               onClick={() => moveTaskDown(index)}
             >
-              ⬇️
+              <Icon path={mdiMenuDown} size={1} />
             </button>
             <button
               className="remove-button"
               //arrow function so it does not call function immediately
               onClick={() => removeTask(index)}
             >
-              ⛔️
+              <Icon path={mdiDelete} size={1} />
             </button>
           </li>
         ))}
@@ -372,7 +382,7 @@ function ToDoList({
                 //arrow function so it does not call function immediately
                 onClick={() => removeCompletedTask(index)}
               >
-                ⛔️
+                <Icon path={mdiDelete} size={1} />
               </button>
             </li>
           ))}

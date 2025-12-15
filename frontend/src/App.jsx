@@ -13,14 +13,44 @@ import Register from "./pages/Register";
 import { getUser, logout } from "./components/Logout";
 
 function App() {
-  const [user, setUser] = useState(() => getUser());
-  const [isAuthenticated, setIsAuthenticated] = useState(() => !!getUser());
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [tasks, setTasks] = useState([]);
   const [completedTasks, setCompletedTasks] = useState([]);
   const [totalEffort, setTotalEffort] = useState(0);
   const [rewards, setRewards] = useState([]);
   const [purchasedRewards, setPurchasedRewards] = useState([]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      setIsAuthenticated(false);
+      setUser(null);
+      setAuthLoading(false);
+      return;
+    }
+
+    fetch("http://localhost:4000/api/user", {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Invalid token");
+        return res.json();
+      })
+      .then((userData) => {
+        setUser(userData);
+        setIsAuthenticated(true);
+      })
+      .catch(() => {
+        localStorage.removeItem("token");
+        setIsAuthenticated(false);
+        setUser(null);
+      })
+      .finally(() => setAuthLoading(false));
+  }, []);
 
   // Fetch tasks from backend on load
   useEffect(() => {
@@ -71,6 +101,9 @@ function App() {
     fetchData();
   }, [isAuthenticated]);
 
+  if (authLoading) {
+    return null;
+  }
   return (
     <Router>
       <Routes>
@@ -91,7 +124,11 @@ function App() {
         />
 
         {/* Private routes */}
-        <Route element={<Layout />}>
+        <Route
+          element={
+            isAuthenticated ? <Layout /> : <Navigate to="/login" replace />
+          }
+        >
           <Route
             path="/"
             element={
@@ -131,7 +168,7 @@ function App() {
         </Route>
 
         {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" />} />
+        <Route path="*" element={<Navigate to="/Login" />} />
       </Routes>
     </Router>
   );

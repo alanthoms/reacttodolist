@@ -1,5 +1,12 @@
 import React, { useState } from "react";
 import EditReward from "./EditReward";
+import Icon from "@mdi/react";
+
+import { mdiPencilOutline } from "@mdi/js";
+import { mdiDelete } from "@mdi/js";
+
+import { mdiCheck } from "@mdi/js";
+
 function ToDoShop({
   totalEffort,
   setTotalEffort,
@@ -114,6 +121,31 @@ function ToDoShop({
     }
   }
 
+  //remove purchased reward
+
+  async function removePurchasedReward(index) {
+    const token = localStorage.getItem("token");
+    try {
+      const deleteTask = await fetch(
+        `http://localhost:4000/purchased-rewards/${purchasedRewards[index].id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+      if (!deleteTask.ok) {
+        const error = await deleteTask.text();
+        throw new Error(`Server error: ${deleteTask.status} - ${error}`);
+      }
+      const updatedPurchasedRewards = purchasedRewards.filter(
+        (_, i) => i !== index
+      );
+      setPurchasedRewards(updatedPurchasedRewards);
+    } catch (err) {
+      console.error(err.message);
+    }
+  }
+
   return (
     <div className="to-do-list">
       <div className="text-red-500">Tailwind works!</div>
@@ -184,19 +216,19 @@ function ToDoShop({
                 setIsEditOpen(true);
               }}
             >
-              ✏️ Edit
+              <Icon path={mdiPencilOutline} size={1} />
             </button>
             <button
               className="purchase-button"
               onClick={() => purchaseReward(index)}
             >
-              ✅ Buy
+              <Icon path={mdiCheck} size={1} />
             </button>
             <button
               className="remove-button"
               onClick={() => removeReward(index)}
             >
-              ⛔️ Remove
+              <Icon path={mdiDelete} size={1} />
             </button>
           </li>
         ))}
@@ -221,6 +253,13 @@ function ToDoShop({
               <span>
                 Purchased at: {new Date(reward.purchased_at).toLocaleString()}
               </span>
+              <button
+                className="remove-purchased-button"
+                //arrow function so it does not call function immediately
+                onClick={() => removePurchasedReward(index)}
+              >
+                Remove
+              </button>
             </li>
           ))}
         </ol>

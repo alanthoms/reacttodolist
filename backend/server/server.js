@@ -518,6 +518,20 @@ app.put("/rewards/:id", authenticateToken, async (req, res) => {
   }
 });
 
+app.delete("/purchased-rewards/:id", authenticateToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query(
+      "DELETE FROM purchased_rewards WHERE id = $1 AND user_id = $2",
+      [id, req.user.userId]
+    );
+    res.json({ message: "Purchased reward deleted successfully" });
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).json({ error: "Failed to delete purchased reward" });
+  }
+});
+
 //start server
 app.listen(4000, () => {
   console.log("Server is running on port 4000");
