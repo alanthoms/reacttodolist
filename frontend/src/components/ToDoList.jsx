@@ -18,6 +18,7 @@ import SortableTask from "./SortableTask";
 
 import { closestCorners, DndContext } from "@dnd-kit/core";
 import {
+  arrayMove,
   SortableContext,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
@@ -221,6 +222,20 @@ function ToDoList({
     }
   }
 */
+
+  const getTaskPos = (id) => tasks.findIndex((task) => task.id === id);
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id === over.id) return;
+
+    setTasks((tasks) => {
+      const originalPos = getTaskPos(active.id);
+      const newPos = getTaskPos(over.id);
+
+      return arrayMove(tasks, originalPos, newPos);
+    });
+  };
+
   return (
     <div className="to-do-list">
       <div className="text-red-500">Tailwind works!</div>
@@ -273,7 +288,8 @@ function ToDoList({
           onClose={() => setIsEditOpen(false)}
         />
       )}
-      <DndContext collisionDetection={closestCorners}>
+
+      <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
         <ol>
           <SortableContext
             items={tasks.map((t) => t.id)}
