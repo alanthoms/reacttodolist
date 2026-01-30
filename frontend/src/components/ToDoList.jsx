@@ -160,26 +160,22 @@ function ToDoList({
     }
   }
 
-  async function removeTask(index) {
+  async function removeTask(taskId) {
     // dont add effort from deleted task
     //filter with arrow function, if index matches i, filtered out
     // we keep i that doesnt equal index
     //const updatedTasks = tasks.filter((_, i) => i !== index);
     //setTasks(updatedTasks);
     try {
-      const deleteTask = await fetch(
-        `http://localhost:4000/tasks/${tasks[index].id}`,
-        {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` },
-        },
-      );
+      const deleteTask = await fetch(`http://localhost:4000/tasks/${taskId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!deleteTask.ok) {
         const error = await deleteTask.text();
         throw new Error(`Server error: ${deleteTask.status} - ${error}`);
       }
-      const updatedTasks = tasks.filter((_, i) => i !== index);
-      setTasks(updatedTasks);
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
     } catch (err) {
       console.error(err.message);
     }
@@ -246,8 +242,17 @@ function ToDoList({
   };
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(TouchSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Drag only starts after moving 8px (allows clicks to pass through)
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Require holding for 250ms on mobile to drag
+        tolerance: 5,
+      },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     }),
@@ -306,10 +311,13 @@ function ToDoList({
         />
       )}
 
-      <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCorners}
+      >
         <ol>
           <SortableContext
-            sensors={sensors}
             items={tasks.map((t) => t.id)}
             strategy={verticalListSortingStrategy}
           >

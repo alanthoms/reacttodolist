@@ -33,7 +33,8 @@ export default function SortableTask({
 
       <button
         className="edit-button"
-        onClick={() => {
+        onClick={(e) => {
+          e.stopPropagation();
           setEditingTask(task);
           setIsEditOpen(true);
         }}
@@ -41,11 +42,23 @@ export default function SortableTask({
         <Icon path={mdiPencilOutline} size={1} />
       </button>
 
-      <button className="delete-button" onClick={() => completeTask(task.id)}>
+      <button
+        className="delete-button"
+        onClick={(e) => {
+          e.stopPropagation();
+          completeTask(task.id);
+        }}
+      >
         <Icon path={mdiCheck} size={1} />
       </button>
 
-      <button className="remove-button" onClick={() => removeTask(task.id)}>
+      <button
+        className="remove-button"
+        onClick={(e) => {
+          e.stopPropagation();
+          removeTask(task.id);
+        }}
+      >
         <Icon path={mdiDelete} size={1} />
       </button>
     </li>
