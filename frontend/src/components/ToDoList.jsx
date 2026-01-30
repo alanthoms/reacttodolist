@@ -12,6 +12,8 @@ import { mdiMenuDown } from "@mdi/js";
 
 import { mdiDelete } from "@mdi/js";
 
+import CompletedTasks from "./CompletedTasks";
+
 function ToDoList({
   totalEffort,
   setTotalEffort,
@@ -31,8 +33,6 @@ function ToDoList({
   //store effort values
   const [newEffort, setNewEffort] = useState("");
   //stores completed tasks for display
-
-  const [showCompleted, setShowCompleted] = useState(false);
 
   const [isRepeatable, setIsRepeatable] = useState(false);
 
@@ -139,7 +139,7 @@ function ToDoList({
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-        }
+        },
       );
 
       if (!response.ok) {
@@ -161,11 +161,11 @@ function ToDoList({
         setTasks((prev) => prev.filter((_, i) => i !== index));
       } else {
         setTasks((prev) =>
-          prev.map((t, i) => (i === index ? { ...t, flashed: true } : t))
+          prev.map((t, i) => (i === index ? { ...t, flashed: true } : t)),
         );
         setTimeout(() => {
           setTasks((prev) =>
-            prev.map((t, i) => (i === index ? { ...t, flashed: false } : t))
+            prev.map((t, i) => (i === index ? { ...t, flashed: false } : t)),
           );
         }, 500);
       }
@@ -186,7 +186,7 @@ function ToDoList({
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (!deleteTask.ok) {
         const error = await deleteTask.text();
@@ -207,14 +207,14 @@ function ToDoList({
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (!deleteTask.ok) {
         const error = await deleteTask.text();
         throw new Error(`Server error: ${deleteTask.status} - ${error}`);
       }
       const updatedCompletedTasks = completedTasks.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       );
       setCompletedTasks(updatedCompletedTasks);
     } catch (err) {
@@ -352,42 +352,14 @@ function ToDoList({
         ))}
       </ol>
 
-      <button
-        className="toggle-completed-button"
-        onClick={() => setShowCompleted(!showCompleted)}
-      >
-        {showCompleted ? "Hide Completed Tasks" : "Show Completed Tasks"}
-      </button>
-
-      <div
-        className={`completed-section ${showCompleted ? "visible" : "hidden"}`}
-      >
-        <h1>Completed Tasks</h1>
-        <ol>
-          {completedTasks.map((ctaskElement, index) => (
-            <li
-              key={index}
-              className={`task-item ${ctaskElement.flashed ? "flashed" : ""}`}
-            >
-              <span className="text">
-                {ctaskElement.text} (Effort: {ctaskElement.effort}){" "}
-                {ctaskElement.repeatable && "🔁"}
-              </span>
-              <span>{ctaskElement.date}</span>
-              <span>
-                {new Date(ctaskElement.completed_at).toLocaleString()}
-              </span>
-              <button
-                className="remove-completed-button"
-                //arrow function so it does not call function immediately
-                onClick={() => removeCompletedTask(index)}
-              >
-                <Icon path={mdiDelete} size={1} />
-              </button>
-            </li>
-          ))}
-        </ol>
-      </div>
+      <CompletedTasks //passes array from useState
+        // and creates function to call removeCompletedTask function
+        completedTasks={completedTasks}
+        onRemove={(taskId) => {
+          const index = completedTasks.findIndex((t) => t.id === taskId);
+          removeCompletedTask(index);
+        }}
+      />
     </div>
   );
 }
