@@ -14,6 +14,16 @@ import { mdiDelete } from "@mdi/js";
 
 import CompletedTasks from "./CompletedTasks";
 
+import SortableTask from "./SortableTask";
+
+import { closestCorners, DndContext } from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+
+import { CSS } from "@dnd-kit/utilities";
+
 function ToDoList({
   totalEffort,
   setTotalEffort,
@@ -91,44 +101,10 @@ function ToDoList({
   function addCompletedTask(task) {
     setCompletedTasks((ct) => [...ct, task]);
   }
-  /** 
-  function clearTask(index) {
-    //add effort from deleted task
 
-    const d = new Date();
-    const task = tasks[index];
-    //create copy for completed task
-    const completedTask = { ...task, date: d.toLocaleString() };
-
-    task.date = d.toLocaleString();
-    setTotalEffort((prev) => prev + task.effort);
-
-    // Flash it briefly
-    const updatedTasks = [...tasks];
-    updatedTasks[index].flashed = true;
-
-    // Remove flash after a delay (e.g. 500ms)
-
-    setTimeout(() => {
-      if (!task.repeatable) {
-        //filter with arrow function, if index matches i, filtered out
-        // we keep i that doesnt equal index
-        const updatedTasks = tasks.filter((_, i) => i !== index);
-        setTasks(updatedTasks);
-      } else {
-        const resetFlash = [...updatedTasks];
-        resetFlash[index].flashed = false;
-        setTasks(resetFlash);
-      }
-    }, 500);
-
-    addCompletedTask(completedTask);
-  }
-    */
-
-  async function completeTask(taskId, index) {
+  async function completeTask(taskId) {
     const token = localStorage.getItem("token");
-    const task = tasks[index]; // grab task locally
+    const task = tasks.find((t) => t.id === taskId);
 
     try {
       const response = await fetch(
@@ -158,14 +134,14 @@ function ToDoList({
 
       // Remove task from main list if not repeatable, otherwise flash
       if (!task.repeatable) {
-        setTasks((prev) => prev.filter((_, i) => i !== index));
+        setTasks((prev) => prev.filter((t) => t.id !== taskId));
       } else {
         setTasks((prev) =>
-          prev.map((t, i) => (i === index ? { ...t, flashed: true } : t)),
+          prev.map((t) => (t.id === taskId ? { ...t, flashed: true } : t)),
         );
         setTimeout(() => {
           setTasks((prev) =>
-            prev.map((t, i) => (i === index ? { ...t, flashed: false } : t)),
+            prev.map((t) => (t.id === taskId ? { ...t, flashed: false } : t)),
           );
         }, 500);
       }
@@ -199,11 +175,12 @@ function ToDoList({
     }
   }
 
-  async function removeCompletedTask(index) {
+  async function removeCompletedTask(taskId) {
     const token = localStorage.getItem("token");
+    //
     try {
       const deleteTask = await fetch(
-        `http://localhost:4000/completed-tasks/${completedTasks[index].id}`,
+        `http://localhost:4000/completed-tasks/${taskId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
@@ -213,15 +190,13 @@ function ToDoList({
         const error = await deleteTask.text();
         throw new Error(`Server error: ${deleteTask.status} - ${error}`);
       }
-      const updatedCompletedTasks = completedTasks.filter(
-        (_, i) => i !== index,
-      );
-      setCompletedTasks(updatedCompletedTasks);
+
+      setCompletedTasks((prev) => prev.filter((t) => t.id !== taskId));
     } catch (err) {
       console.error(err.message);
     }
   }
-
+  /*
   function moveTaskUp(index) {
     //check if at the top
     if (index > 0) {
@@ -245,7 +220,7 @@ function ToDoList({
       setTasks(updatedTasks);
     }
   }
-
+*/
   return (
     <div className="to-do-list">
       <div className="text-red-500">Tailwind works!</div>
@@ -298,66 +273,30 @@ function ToDoList({
           onClose={() => setIsEditOpen(false)}
         />
       )}
-      <ol>
-        {tasks.map((taskElement, index) => (
-          <li
-            key={index}
-            className={`task-item ${taskElement.flashed ? "flashed" : ""}`}
+      <DndContext collisionDetection={closestCorners}>
+        <ol>
+          <SortableContext
+            items={tasks.map((t) => t.id)}
+            strategy={verticalListSortingStrategy}
           >
-            <span className="text">
-              {taskElement.text} (Effort: {taskElement.effort}){" "}
-              {taskElement.repeatable && "🔁"}
-            </span>
-
-            <button
-              className="edit-button"
-              onClick={() => {
-                setEditingTask(taskElement);
-                setIsEditOpen(true);
-              }}
-            >
-              <Icon path={mdiPencilOutline} size={1} />
-            </button>
-
-            <button
-              className="delete-button"
-              //arrow function so it does not call function immediately
-              onClick={() => completeTask(taskElement.id, index)}
-            >
-              <Icon path={mdiCheck} size={1} />
-            </button>
-
-            <button
-              className="move-button"
-              //arrow function so it does not call function immediately
-              onClick={() => moveTaskUp(index)}
-            >
-              <Icon path={mdiMenuUp} size={1} />
-            </button>
-            <button
-              className="move-button"
-              //arrow function so it does not call function immediately
-              onClick={() => moveTaskDown(index)}
-            >
-              <Icon path={mdiMenuDown} size={1} />
-            </button>
-            <button
-              className="remove-button"
-              //arrow function so it does not call function immediately
-              onClick={() => removeTask(index)}
-            >
-              <Icon path={mdiDelete} size={1} />
-            </button>
-          </li>
-        ))}
-      </ol>
-
+            {tasks.map((taskElement) => (
+              <SortableTask
+                key={taskElement.id}
+                task={taskElement}
+                completeTask={completeTask}
+                removeTask={removeTask}
+                setEditingTask={setEditingTask}
+                setIsEditOpen={setIsEditOpen}
+              />
+            ))}
+          </SortableContext>
+        </ol>
+      </DndContext>
       <CompletedTasks //passes array from useState
         // and creates function to call removeCompletedTask function
         completedTasks={completedTasks}
         onRemove={(taskId) => {
-          const index = completedTasks.findIndex((t) => t.id === taskId);
-          removeCompletedTask(index);
+          removeCompletedTask(taskId);
         }}
       />
     </div>
