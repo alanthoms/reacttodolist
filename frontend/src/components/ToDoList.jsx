@@ -16,10 +16,19 @@ import CompletedTasks from "./CompletedTasks";
 
 import SortableTask from "./SortableTask";
 
-import { closestCorners, DndContext } from "@dnd-kit/core";
+import {
+  closestCorners,
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
 import {
   arrayMove,
   SortableContext,
+  sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 
@@ -236,6 +245,14 @@ function ToDoList({
     });
   };
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
   return (
     <div className="to-do-list">
       <div className="text-red-500">Tailwind works!</div>
@@ -292,6 +309,7 @@ function ToDoList({
       <DndContext onDragEnd={handleDragEnd} collisionDetection={closestCorners}>
         <ol>
           <SortableContext
+            sensors={sensors}
             items={tasks.map((t) => t.id)}
             strategy={verticalListSortingStrategy}
           >

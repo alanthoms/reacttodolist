@@ -35,7 +35,9 @@ button {
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  box-shadow: inset 1px 1px 0px #fff, 3px 3px 6px rgba(0, 0, 0, 0.16);
+  box-shadow:
+    inset 1px 1px 0px #fff,
+    3px 3px 6px rgba(0, 0, 0, 0.16);
   cursor: pointer;
   transition: 0.4s;
 }
@@ -68,6 +70,7 @@ li {
   display: flex;
   align-items: center;
   color: #121212;
+  touch-action: none;
 }
 
 .text {
@@ -162,7 +165,9 @@ body {
   border: 2px solid #1a2e6c; /* dark blue border */
   background-color: #e9e9e9; /* light grey background */
   color: #121212;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  transition:
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .task-form input[type="text"]::placeholder,
@@ -187,7 +192,9 @@ body {
   border-radius: 6px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.25s, transform 0.15s;
+  transition:
+    background-color 0.25s,
+    transform 0.15s;
 }
 
 /* Hover + active */
