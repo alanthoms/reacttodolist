@@ -8,6 +8,11 @@ import { mdiDelete } from "@mdi/js";
 import { mdiCheck } from "@mdi/js";
 
 import { mdiSync } from "@mdi/js";
+
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { SplitText } from "gsap/all";
+
 function ToDoShop({
   totalEffort,
   setTotalEffort,
@@ -16,6 +21,25 @@ function ToDoShop({
   purchasedRewards,
   setPurchasedRewards,
 }) {
+  useGSAP(() => {
+    const titleSplit = new SplitText(".task-title", { type: "chars,words" });
+
+    gsap.from(titleSplit.chars, {
+      xPercent: 100,
+      duration: 0.7,
+      ease: "expo.out",
+      stagger: -0.03,
+      opacity: 0,
+    });
+
+    gsap.from(".task-list li", {
+      duration: 0.8,
+      ease: "expo.out",
+      stagger: 0.03,
+      opacity: 0,
+      delay: 0.5,
+    });
+  }, []);
   const token = localStorage.getItem("token");
 
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -149,12 +173,12 @@ function ToDoShop({
 
   return (
     <div className="to-do-list">
-      <div className="flex justify-center items-center  ">
+      <div className=" task-title flex justify-center items-center  ">
         <div className=" text-7xl text-white leading-none font-sans pr-7 font-extrabold">
           WANTS
         </div>
         <div className=" text-7xl text-white leading-none font-sans ">
-          Effort Points:{totalEffort}
+          Total:{totalEffort}
         </div>
       </div>
       <form
@@ -209,7 +233,7 @@ function ToDoShop({
         />
       )}
 
-      <ol>
+      <ol className="task-list">
         {rewards.map((reward, index) => (
           <li
             key={index}

@@ -5,6 +5,10 @@ import {
   Route,
   Navigate,
 } from "react-router-dom";
+import gsap from "gsap";
+import { ScrollTrigger, SplitText } from "gsap/all";
+
+gsap.registerPlugin(ScrollTrigger, SplitText);
 import { Home } from "./pages/Home";
 import { Shop } from "./pages/Shop";
 import { Layout } from "./components/Layout";
