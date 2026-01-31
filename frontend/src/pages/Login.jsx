@@ -53,7 +53,7 @@ const Login = ({ setIsAuthenticated }) => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-[url('/your-background.jpg')] bg-cover bg-center">
+    <div className="flex justify-center -mt-24 items-center min-h-screen bg-[url('/your-background.jpg')] bg-cover bg-center">
       <div className="bg-white/10 backdrop-blur-lg border border-white/20 p-8 rounded-xl shadow-lg w-full max-w-md">
         <h2 className="text-3xl font-bold mb-6 text-center text-white tracking-wide">
           Login
