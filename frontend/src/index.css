@@ -108,8 +108,8 @@ li {
 }
 
 body {
-  background: linear-gradient(39deg, #05feed, #20005c, #6e1594);
-  background-size: 230% 230%;
+  background: linear-gradient(39deg, #ff0000, #2d1212, #f80178);
+  background-size: 225% 225%;
   background-position: 0% 50%; /* Start position */
   background-attachment: fixed;
 }
@@ -183,7 +183,7 @@ body {
 
 /* Buttons */
 .task-form button {
-  background-color: #1a2e6c; /* dark blue */
+  background-color: #6c1a1a; /* dark blue */
   color: #fff;
   border: none;
   padding: 0.6rem 1.2rem;
@@ -197,11 +197,11 @@ body {
 
 /* Hover + active */
 .task-form button:hover {
-  background-color: #243b8a; /* lighter blue */
+  background-color: #841e1e; /* lighter blue */
 }
 
 .task-form button:active {
-  background-color: #101c47; /* deeper blue */
+  background-color: #2d0505; /* deeper blue */
   transform: scale(0.97);
 }
 a {

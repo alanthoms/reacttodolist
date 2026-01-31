@@ -149,10 +149,16 @@ function ToDoShop({
 
   return (
     <div className="to-do-list">
-      <h1>Shop</h1>
-      <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
+      <div className="flex justify-center items-center  ">
+        <div className=" text-7xl text-white leading-none font-sans pr-7 font-extrabold">
+          WANTS
+        </div>
+        <div className=" text-7xl text-white leading-none font-sans ">
+          Effort Points:{totalEffort}
+        </div>
+      </div>
       <form
-        className="task-form"
+        className="task-form flex items-center gap-2 mt-4 p-4 rounded-lg bg-white/80 shadow-[0_0_10px_rgba(255,255,255,1),0_4px_6px_rgba(0,0,0,0.1)]"
         onSubmit={(e) => {
           e.preventDefault();
           addReward();
@@ -181,11 +187,11 @@ function ToDoShop({
             padding: "4px 8px",
             borderRadius: "4px",
             cursor: "pointer",
-            background: isRepeatable ? "blue" : "grey",
+            background: isRepeatable ? "red" : "grey",
             transition: "all 0.3s ease", // Smooths out the color, rotation, and glow
             transform: isRepeatable ? "rotate(180deg)" : "rotate(0deg)",
             boxShadow: isRepeatable
-              ? "0 0 15px 2px blue" // Aquamarine glow
+              ? "0 0 15px 2px red" // Aquamarine glow
               : "none",
           }}
         >

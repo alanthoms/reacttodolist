@@ -48,12 +48,12 @@ export function NavBar() {
       </div>
 
       {/* LOGOUT */}
-      <button
+      <div
         onClick={logout}
-        className="bg-transparent border border-white/40 px-6 py-2 rounded-full text-xs font-bold uppercase tracking-tighter text-white hover:bg-white hover:text-black transition-all duration-300 active:scale-90"
+        className=" cursor-pointer bg-transparent border border-white/40 px-6 py-2 rounded-full text-xs font-bold uppercase tracking-tighter text-white hover:!bg-white hover:!text-black transition-all duration-300 active:scale-90"
       >
         Logout
-      </button>
+      </div>
     </nav>
   );
 }
