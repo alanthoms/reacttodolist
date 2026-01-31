@@ -316,6 +316,7 @@ function ToDoList({
           value={newTask}
           onChange={handleInputChange}
           required
+          className="capitalize"
         />
         <input
           type="number"

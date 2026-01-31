@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-
-
 export default function EditForm({
   itemType = "task",
   item,
@@ -36,7 +34,7 @@ export default function EditForm({
           type="text"
           value={text}
           onChange={(e) => setText(e.target.value)}
-          className="mt-1 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700"
+          className="capitalize mt-1 w-full border border-gray-300 dark:border-gray-600 rounded-lg p-2.5 text-gray-900 dark:text-white bg-gray-50 dark:bg-gray-700"
           required
         />
       </div>

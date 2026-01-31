@@ -196,6 +196,7 @@ function ToDoShop({
           placeholder="Enter Reward"
           value={newReward}
           onChange={handleInputChange}
+          className="capitalize"
           required
         />
         <input
