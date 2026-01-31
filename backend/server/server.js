@@ -13,7 +13,7 @@ app.use(
     methods: ["GET", "POST", "PUT", "DELETE"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
-  })
+  }),
 );
 
 console.log("✅ CORS middleware loaded");
@@ -65,7 +65,7 @@ app.post("/api/auth/register", async (req, res) => {
     // Insert the new user into the database
     const result = await pool.query(
       "INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING id, username, email",
-      [username, email, hashedPassword]
+      [username, email, hashedPassword],
     );
 
     res.json({
@@ -97,7 +97,7 @@ app.post("/api/auth/login", async (req, res) => {
   try {
     const userResult = await pool.query(
       "SELECT * FROM users WHERE email = $1",
-      [email]
+      [email],
     );
     const user = userResult.rows[0];
     if (!user)
@@ -111,7 +111,7 @@ app.post("/api/auth/login", async (req, res) => {
     const token = jwt.sign(
       { userId: user.id, username: user.username },
       process.env.JWT_SECRET, // ✅ use your real secret
-      { expiresIn: "1h" }
+      { expiresIn: "1h" },
     );
 
     res.json({
@@ -131,7 +131,7 @@ app.post("/tasks", authenticateToken, async (req, res) => {
     const { text, effort, repeatable } = req.body;
     const newTask = await pool.query(
       "INSERT INTO tasks (user_id, text, effort, repeatable) VALUES ($1, $2, $3, $4) RETURNING *",
-      [userId, text, effort, repeatable]
+      [userId, text, effort, repeatable],
     );
     res.json(newTask.rows[0]); // return the newly created task [0] cleans output
   } catch (err) {
@@ -145,7 +145,7 @@ app.get("/tasks", authenticateToken, async (req, res) => {
   try {
     const allTasks = await pool.query(
       "SELECT * FROM tasks WHERE user_id = $1",
-      [req.user.userId]
+      [req.user.userId],
     );
     res.json(allTasks.rows);
   } catch (err) {
@@ -154,13 +154,33 @@ app.get("/tasks", authenticateToken, async (req, res) => {
   }
 });
 
+app.put("/tasks/reorder", authenticateToken, async (req, res) => {
+  const { orderedIds } = req.body;
+  const userId = req.user.userId; // Matches your JWT login structure
+
+  try {
+    // We fire all updates. No BEGIN/COMMIT here to avoid the deadlocks you saw earlier.
+    const updatePromises = orderedIds.map((id, index) => {
+      return pool.query(
+        "UPDATE tasks SET position = $1 WHERE id = $2 AND user_id = $3",
+        [index, id, userId],
+      );
+    });
+
+    await Promise.all(updatePromises);
+    res.status(200).json({ message: "Order updated successfully" });
+  } catch (err) {
+    console.error("Reorder Error:", err.message);
+    res.status(500).send("Server Error");
+  }
+});
 //get a specific task
 app.get("/tasks/:id", authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const task = await pool.query(
       "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
     res.json(task.rows[0]);
   } catch (err) {
@@ -177,7 +197,7 @@ app.put("/tasks/:id", authenticateToken, async (req, res) => {
 
     const updatedTask = await pool.query(
       "UPDATE tasks SET text = $1, effort = $2, repeatable = $3 WHERE id = $4 AND user_id = $5 RETURNING *",
-      [text, effort, repeatable, id, req.user.userId]
+      [text, effort, repeatable, id, req.user.userId],
     );
 
     if (updatedTask.rows.length === 0) {
@@ -227,7 +247,7 @@ app.post("/tasks/:id/complete", authenticateToken, async (req, res) => {
     // Get the task and its effort
     const taskResult = await pool.query(
       "SELECT * FROM tasks WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
 
     if (taskResult.rows.length === 0) {
@@ -240,13 +260,13 @@ app.post("/tasks/:id/complete", authenticateToken, async (req, res) => {
     // Insert into completed_tasks table and get that completed task
     const completedTask = await pool.query(
       "INSERT INTO completed_tasks (user_id, task_id, text, effort, completed_at) VALUES ($1, $2, $3, $4, NOW()) RETURNING *",
-      [req.user.userId, task.id, task.text, task.effort]
+      [req.user.userId, task.id, task.text, task.effort],
     );
 
     // Update user's total effort
     const updatedUser = await pool.query(
       "UPDATE users SET effort = effort + $1 WHERE id = $2 RETURNING id, username, effort",
-      [task.effort, req.user.userId]
+      [task.effort, req.user.userId],
     );
 
     // Delete task if not repeatable
@@ -278,7 +298,7 @@ app.get("/completed-tasks", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM completed_tasks WHERE user_id = $1 ORDER BY id DESC",
-      [req.user.userId]
+      [req.user.userId],
     );
     res.json(result.rows);
   } catch (err) {
@@ -292,7 +312,7 @@ app.get("/api/user", authenticateToken, async (req, res) => {
   try {
     const user = await pool.query(
       "SELECT id, username, effort FROM users WHERE id = $1",
-      [req.user.userId]
+      [req.user.userId],
     );
     res.json(user.rows[0]);
   } catch (err) {
@@ -307,7 +327,7 @@ app.delete("/completed-tasks/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     await pool.query(
       "DELETE FROM completed_tasks WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
     res.json({ message: "Completed task deleted successfully" });
   } catch (err) {
@@ -325,7 +345,7 @@ app.get("/rewards", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       "SELECT * FROM rewards WHERE user_id = $1 ORDER BY id DESC",
-      [req.user.userId]
+      [req.user.userId],
     );
     res.json(result.rows);
   } catch (err) {
@@ -340,7 +360,7 @@ app.post("/rewards", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       "INSERT INTO rewards (user_id, text, effort, repeatable) VALUES ($1, $2, $3, $4) RETURNING *",
-      [req.user.userId, text, effort, repeatable]
+      [req.user.userId, text, effort, repeatable],
     );
     res.json(result.rows[0]);
   } catch (err) {
@@ -357,7 +377,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     // Get reward
     const rewardResult = await pool.query(
       "SELECT * FROM rewards WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
 
     if (rewardResult.rows.length === 0) {
@@ -369,7 +389,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     // Check if user has enough points
     const userResult = await pool.query(
       "SELECT effort FROM users WHERE id = $1",
-      [req.user.userId]
+      [req.user.userId],
     );
     const totalEffort = userResult.rows[0].effort;
 
@@ -387,7 +407,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     await pool.query(
       `INSERT INTO purchased_rewards (user_id, reward_id, text, effort_spent, purchased_at)
    VALUES ($1, $2, $3, $4, NOW())`,
-      [req.user.userId, reward.id, reward.text, reward.effort]
+      [req.user.userId, reward.id, reward.text, reward.effort],
     );
 
     // Delete reward if not repeatable
@@ -412,7 +432,7 @@ app.delete("/rewards/:id", authenticateToken, async (req, res) => {
   try {
     const result = await pool.query(
       "DELETE FROM rewards WHERE id = $1 AND user_id = $2 RETURNING *",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
 
     if (result.rows.length === 0) {
@@ -433,7 +453,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     // Get the reward
     const rewardResult = await pool.query(
       "SELECT * FROM rewards WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
 
     if (rewardResult.rows.length === 0)
@@ -444,7 +464,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     // Check if user has enough points
     const userResult = await pool.query(
       "SELECT effort FROM users WHERE id = $1",
-      [req.user.userId]
+      [req.user.userId],
     );
     const totalEffort = userResult.rows[0].effort;
 
@@ -461,7 +481,7 @@ app.post("/rewards/:id/purchase", authenticateToken, async (req, res) => {
     await pool.query(
       `INSERT INTO purchased_rewards (user_id, reward_id, text, effort_spent, purchased_at)
        VALUES ($1, $2, $3, $4, NOW())`,
-      [req.user.userId, reward.id, reward.text, reward.effort]
+      [req.user.userId, reward.id, reward.text, reward.effort],
     );
 
     // Only delete the reward if it is NOT repeatable
@@ -486,7 +506,7 @@ app.get("/purchased-rewards", authenticateToken, async (req, res) => {
        FROM purchased_rewards
        WHERE user_id = $1
        ORDER BY purchased_at DESC`,
-      [req.user.userId]
+      [req.user.userId],
     );
 
     res.json(result.rows);
@@ -504,7 +524,7 @@ app.put("/rewards/:id", authenticateToken, async (req, res) => {
   try {
     const updatedReward = await pool.query(
       "UPDATE rewards SET text = $1, effort = $2, repeatable = $3 WHERE id = $4 AND user_id = $5 RETURNING *",
-      [text, effort, repeatable, id, req.user.userId]
+      [text, effort, repeatable, id, req.user.userId],
     );
 
     if (updatedReward.rows.length === 0) {
@@ -523,7 +543,7 @@ app.delete("/purchased-rewards/:id", authenticateToken, async (req, res) => {
     const { id } = req.params;
     await pool.query(
       "DELETE FROM purchased_rewards WHERE id = $1 AND user_id = $2",
-      [id, req.user.userId]
+      [id, req.user.userId],
     );
     res.json({ message: "Purchased reward deleted successfully" });
   } catch (err) {

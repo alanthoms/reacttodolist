@@ -4,13 +4,7 @@ import Modal from "./Modal";
 
 import Icon from "@mdi/react";
 
-import { mdiPencilOutline } from "@mdi/js";
-import { mdiCheck } from "@mdi/js";
-
-import { mdiMenuUp } from "@mdi/js";
-import { mdiMenuDown } from "@mdi/js";
-
-import { mdiDelete } from "@mdi/js";
+import { mdiSync } from "@mdi/js";
 
 import CompletedTasks from "./CompletedTasks";
 
@@ -231,13 +225,28 @@ function ToDoList({
   const getTaskPos = (id) => tasks.findIndex((task) => task.id === id);
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    if (active.id === over.id) return;
+    if (!over || active.id === over.id) return;
 
-    setTasks((tasks) => {
+    setTasks((prevTasks) => {
       const originalPos = getTaskPos(active.id);
       const newPos = getTaskPos(over.id);
+      const newOrder = arrayMove(prevTasks, originalPos, newPos);
 
-      return arrayMove(tasks, originalPos, newPos);
+      // --- THE SIDE QUEST: Sync to Database ---
+      fetch("http://localhost:4000/tasks/reorder", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ orderedIds: newOrder.map((t) => t.id) }),
+      })
+        .then((res) => {
+          if (!res.ok) console.error("Database sync failed");
+        })
+        .catch((err) => console.error("Network error:", err));
+
+      return newOrder;
     });
   };
 
@@ -260,8 +269,6 @@ function ToDoList({
 
   return (
     <div className="to-do-list">
-      <div className="text-red-500">Tailwind works!</div>
-
       <h1>Tasks</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
       <form
@@ -292,13 +299,17 @@ function ToDoList({
           style={{
             fontSize: "18px",
             padding: "4px 8px",
-            background: isRepeatable ? "aquamarine" : "grey",
-            border: "1px solid #ccc",
             borderRadius: "4px",
             cursor: "pointer",
+            background: isRepeatable ? "blue" : "grey",
+            transition: "all 0.3s ease", // Smooths out the color, rotation, and glow
+            transform: isRepeatable ? "rotate(180deg)" : "rotate(0deg)",
+            boxShadow: isRepeatable
+              ? "0 0 15px 2px blue" // Aquamarine glow
+              : "none",
           }}
         >
-          🔁
+          <Icon path={mdiSync} size={1} />
         </button>
         <button type="submit">Add</button>
       </form>

@@ -7,6 +7,7 @@ import { mdiDelete } from "@mdi/js";
 
 import { mdiCheck } from "@mdi/js";
 
+import { mdiSync } from "@mdi/js";
 function ToDoShop({
   totalEffort,
   setTotalEffort,
@@ -80,7 +81,7 @@ function ToDoShop({
         {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (!res.ok) throw new Error(await res.text());
       await res.json();
@@ -96,7 +97,7 @@ function ToDoShop({
       // Refresh purchased rewards from backend
       const purchasedRes = await fetch(
         "http://localhost:4000/purchased-rewards",
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { Authorization: `Bearer ${token}` } },
       );
       const purchasedData = await purchasedRes.json();
       setPurchasedRewards(purchasedData);
@@ -131,14 +132,14 @@ function ToDoShop({
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` },
-        }
+        },
       );
       if (!deleteTask.ok) {
         const error = await deleteTask.text();
         throw new Error(`Server error: ${deleteTask.status} - ${error}`);
       }
       const updatedPurchasedRewards = purchasedRewards.filter(
-        (_, i) => i !== index
+        (_, i) => i !== index,
       );
       setPurchasedRewards(updatedPurchasedRewards);
     } catch (err) {
@@ -148,7 +149,6 @@ function ToDoShop({
 
   return (
     <div className="to-do-list">
-      <div className="text-red-500">Tailwind works!</div>
       <h1>Shop</h1>
       <h2>Total Effort from Completed Tasks: {totalEffort}</h2>
       <form
@@ -179,13 +179,17 @@ function ToDoShop({
           style={{
             fontSize: "18px",
             padding: "4px 8px",
-            background: isRepeatable ? "aquamarine" : "grey",
-            border: "1px solid #ccc",
             borderRadius: "4px",
             cursor: "pointer",
+            background: isRepeatable ? "blue" : "grey",
+            transition: "all 0.3s ease", // Smooths out the color, rotation, and glow
+            transform: isRepeatable ? "rotate(180deg)" : "rotate(0deg)",
+            boxShadow: isRepeatable
+              ? "0 0 15px 2px blue" // Aquamarine glow
+              : "none",
           }}
         >
-          🔁
+          <Icon path={mdiSync} size={1} />
         </button>
         <button type="submit">Add</button>
       </form>

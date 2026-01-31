@@ -10,7 +10,7 @@ export default function Modal({ isOpen, onClose, title, children }) {
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6"
+        className="bg-blue dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-center border-b border-gray-200 dark:border-gray-700 pb-3 mb-4">
@@ -27,6 +27,6 @@ export default function Modal({ isOpen, onClose, title, children }) {
         {children}
       </div>
     </div>,
-    document.body // ⬅️ this is the key — render directly under <body>
+    document.body, // ⬅️ this is the key — render directly under <body>
   );
 }

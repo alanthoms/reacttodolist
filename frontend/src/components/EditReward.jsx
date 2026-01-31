@@ -1,22 +1,18 @@
-import React, { useState } from "react";
+import React from "react";
 import Modal from "./Modal";
+import EditForm from "./EditForm";
 
-function EditReward({ rewardElement, setRewards, isOpen, onClose }) {
+export default function EditReward({
+  rewardElement,
+  setRewards,
+  isOpen,
+  onClose,
+}) {
   const token = localStorage.getItem("token");
-  const [text, setText] = useState(rewardElement.text);
-  const [effort, setEffort] = useState(rewardElement.effort);
-  const [repeatable, setRepeatable] = useState(rewardElement.repeatable);
 
-  async function handleSubmit(e) {
-    e.preventDefault();
-    const updatedReward = {
-      ...rewardElement,
-      text,
-      effort: parseInt(effort),
-      repeatable,
-    };
+  const handleSave = async (updatedReward) => {
     try {
-      const res = await fetch(
+      const response = await fetch(
         `http://localhost:4000/rewards/${rewardElement.id}`,
         {
           method: "PUT",
@@ -25,54 +21,32 @@ function EditReward({ rewardElement, setRewards, isOpen, onClose }) {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(updatedReward),
-        }
+        },
       );
-      if (!res.ok) throw new Error(await res.text());
-      const rewardFromDB = await res.json();
+
+      if (!response.ok) throw new Error(await response.text());
+      const updatedFromServer = await response.json();
+
       setRewards((prev) =>
-        prev.map((r) => (r.id === rewardFromDB.id ? rewardFromDB : r))
+        prev.map((r) =>
+          r.id === updatedFromServer.id ? updatedFromServer : r,
+        ),
       );
+
       onClose();
     } catch (err) {
-      console.error(err);
+      console.error(err.message);
     }
-  }
+  };
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Edit Reward">
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder="Reward name"
-          required
-        />
-        <input
-          type="number"
-          value={effort}
-          onChange={(e) => setEffort(e.target.value)}
-          placeholder="Effort"
-          min="0"
-          required
-        />
-        <label>
-          <input
-            type="checkbox"
-            checked={repeatable}
-            onChange={(e) => setRepeatable(e.target.checked)}
-          />{" "}
-          Repeatable 🔁
-        </label>
-        <div className="modal-buttons">
-          <button type="submit">Save</button>
-          <button type="button" onClick={onClose}>
-            Cancel
-          </button>
-        </div>
-      </form>
+      <EditForm
+        itemType="reward"
+        item={rewardElement}
+        onSave={handleSave}
+        onCancel={onClose}
+      />
     </Modal>
   );
 }
-
-export default EditReward;

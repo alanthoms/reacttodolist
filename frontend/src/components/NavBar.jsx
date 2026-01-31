@@ -16,17 +16,44 @@ export function NavBar() {
   }, [location]);
 
   return (
-    <div className="nav-bar">
-      <h1>To Do List</h1>
-      <Link to="/" className="home-title">
-        <button className="holographic-card">Home</button>
-      </Link>
-      <Link to="/shop">
-        <button className="holographic-card">Shop</button>
-      </Link>
-      <button onClick={logout} className="holographic-card">
+    <nav className="fixed top-0 left-0 w-full z-50 px-6 py-2 flex items-center justify-between bg-white/10 backdrop-blur-lg border-b border-white/10 shadow-2xl">
+      <div className="flex items-center gap-12">
+        {/* LOGO */}
+        <h1 className="text-2xl md:text-3xl font-black tracking-tighter text-white m-0 !p-0 leading-none">
+          WANT TO DO
+        </h1>
+
+        {/* NAV LINKS */}
+        <div className="flex gap-8 items-center">
+          <Link
+            to="/"
+            className="group relative py-2 text-sm uppercase tracking-widest font-bold text-white no-underline font-4xl transition-colors hover:text-white"
+          >
+            Tasks
+            <span
+              className={`absolute bottom-0 left-0 h-[2px] bg-[#ffffff] shadow-[0_0_8px_#7fffd4] transition-all duration-300 ${location.pathname === "/" ? "w-full" : "w-0 group-hover:w-full"}`}
+            ></span>
+          </Link>
+
+          <Link
+            to="/shop"
+            className="group relative py-2 text-sm uppercase tracking-widest font-bold text-white no-underline transition-colors hover:text-white"
+          >
+            Wants
+            <span
+              className={`absolute bottom-0 left-0 h-[2px] bg-[#ffffff] shadow-[0_0_8px_#7fffd4] transition-all duration-300 ${location.pathname === "/shop" ? "w-full" : "w-0 group-hover:w-full"}`}
+            ></span>
+          </Link>
+        </div>
+      </div>
+
+      {/* LOGOUT */}
+      <button
+        onClick={logout}
+        className="bg-transparent border border-white/40 px-6 py-2 rounded-full text-xs font-bold uppercase tracking-tighter text-white hover:bg-white hover:text-black transition-all duration-300 active:scale-90"
+      >
         Logout
       </button>
-    </div>
+    </nav>
   );
 }

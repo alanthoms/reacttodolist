@@ -2,7 +2,7 @@
 
 html,
 body {
-  height: 100%;
+  min-height: 100%;
   margin: 0;
   padding: 0;
 }
@@ -69,8 +69,6 @@ li {
   border-radius: 5px;
   display: flex;
   align-items: center;
-  color: #121212;
-  touch-action: none;
 }
 
 .text {
@@ -113,7 +111,7 @@ body {
   background: linear-gradient(39deg, #05feed, #20005c, #6e1594);
   background-size: 230% 230%;
   background-position: 0% 50%; /* Start position */
-  height: 100vh;
+  background-attachment: fixed;
 }
 
 .gradient-forward {
@@ -230,6 +228,7 @@ h6 {
   max-width: none;
   margin: 0 auto;
   padding: 2rem;
+  margin-top: 6rem;
   text-align: center;
 }
 
@@ -298,7 +297,6 @@ h6 {
   margin-top: 2rem;
 }
 
-.nav-bar button,
 .toggle-completed-button,
 .toggle-purchased-button {
   background: none;
@@ -311,75 +309,6 @@ h6 {
   padding: 0.6em 1.3em;
 }
 
-.nav-bar button:hover {
-  box-shadow: 0px 0px 2px 0px rgba(255, 255, 255, 1);
-  transition: 0.3s;
-}
-
-.nav-bar button:active {
-  transform: scale(0.95);
-  transition: 0.3s;
-}
-
-.holographic-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background: #000;
-}
-
-.holographic-card {
-  background: #111;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  border-radius: 15px;
-  transition: all 0.5s ease;
-  padding: 0.6em, 1.2em;
-}
-
-.holographic-card button {
-  padding: 0.6em 1.2em;
-}
-
-.holographic-card h2 {
-  color: #0ff;
-  font-size: 2rem;
-  position: relative;
-  z-index: 2;
-}
-
-.holographic-card::before {
-  content: "";
-  position: absolute;
-  top: -50%;
-  left: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    0deg,
-    transparent,
-    transparent 30%,
-    rgba(255, 255, 255, 0.3)
-  );
-  transform: rotate(-45deg);
-  transition: all 0.5s ease;
-  opacity: 0;
-}
-
-.holographic-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
-}
-
-.holographic-card:hover::before {
-  opacity: 1;
-  transform: rotate(-45deg) translateY(100%);
-}
-
 .completed-section {
   max-height: 0;
   overflow: hidden;
@@ -389,7 +318,7 @@ h6 {
 }
 
 .completed-section.visible {
-  max-height: 1000px; /* large enough to fit content */
+  min-height: 1000px; /* large enough to fit content */
   opacity: 1;
   transform: scaleY(1);
 }
