@@ -173,7 +173,10 @@ function ToDoShop({
 
   return (
     <div className="to-do-list">
-      <div className=" task-title flex justify-center items-center  ">
+      <div
+        key={totalEffort}
+        className=" task-title flex justify-center items-center  "
+      >
         <div className=" text-7xl text-white leading-none font-sans pr-7 font-extrabold">
           WANTS
         </div>
