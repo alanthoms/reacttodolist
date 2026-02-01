@@ -311,18 +311,10 @@ h6 {
   padding: 0.6em 1.3em;
 }
 
-.completed-section {
-  max-height: 0;
-  overflow: hidden;
-  opacity: 0;
-  transform: scaleY(0.95);
-  transition: all 0.4s ease;
-}
-
 .completed-section.visible {
   min-height: 1000px; /* large enough to fit content */
   opacity: 1;
-  transform: scaleY(1);
+  transition: 0.3s;
 }
 /* Completely override Chrome saved-password autofill styling */
 input:-webkit-autofill,
