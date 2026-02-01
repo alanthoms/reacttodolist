@@ -1,36 +1,11 @@
-# React + Vite
-
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
-
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
 
 
-Did Initial To Do List following Tutorial
+Simple PERN stack To Do List with a login system.
 
-Effort was simple but should learn more about react hooks
-
-
-Okay learnt about routers and brushed on layout stuff but not really comfortable.
-
-Remind yourself to save every file after.
+Gain Effort Points by complete tasks aka To Dos to purchase Wants.
 
 
+<img width="1897" height="800" alt="image" src="https://github.com/user-attachments/assets/63443c4a-d348-4ef9-9135-391bf5337fdc" />
 
-Lazy initiliazer, local storage incorporated.
 
-Express used to quickly create server in node.js
-
-Node.js being an alternative way to run js? not on website
-
-cors for differnet domain applications to interact with each other
-
-pg connect database to server for postgre queries
-
-my god connecting vite to postgres was so difficult, just for the main issue is that macos uses port 5000 for airplay.
+<img width="1887" height="721" alt="image" src="https://github.com/user-attachments/assets/73d5f470-90cd-41dc-be39-3e86499ad083" />
