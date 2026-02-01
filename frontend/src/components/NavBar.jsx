@@ -29,7 +29,7 @@ export function NavBar() {
             to="/"
             className="group relative py-2 text-sm uppercase tracking-widest font-bold text-white no-underline font-4xl transition-colors hover:text-white"
           >
-            Tasks
+            TO DOS
             <span
               className={`absolute bottom-0 left-0 h-[2px] bg-[#ffffff] shadow-[0_0_8px_#7fffd4] transition-all duration-300 ${location.pathname === "/" ? "w-full" : "w-0 group-hover:w-full"}`}
             ></span>

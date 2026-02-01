@@ -297,7 +297,7 @@ function ToDoList({
         className="task-title flex justify-center items-center  "
       >
         <div className=" text-7xl text-white leading-none font-sans pr-7 font-extrabold">
-          TASKS
+          TO DOS
         </div>
         <div className=" text-7xl text-white leading-none font-sans ">
           Total:{totalEffort}
